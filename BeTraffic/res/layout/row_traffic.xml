@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_height="wrap_content" android:gravity="left|center"
+	android:layout_width="fill_parent" android:paddingBottom="5px"
+	android:paddingTop="5px" android:paddingLeft="5px" android:orientation="vertical">
+
+
+		<TextView android:id="@+id/tname" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" android:gravity="left"
+			android:textStyle="bold" />
+		<TextView android:id="@+id/tsource" android:layout_width="wrap_content"
+			android:layout_height="wrap_content" />
+				<TextView android:id="@+id/tdist" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:layout_marginLeft="3dip"/>
+
+		
+</LinearLayout>

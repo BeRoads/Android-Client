@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout android:id="@+id/empty"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="fill_parent" android:layout_height="fill_parent"
+	android:orientation="vertical" android:gravity="center">
+
+		<Button android:layout_width="fill_parent" android:text="Click here to open GPS settings" android:layout_gravity="bottom" android:layout_height="0dip" android:layout_weight="1" android:visibility="invisible"></Button>
+	<TextView android:id="@+id/empty_tv" android:layout_width="wrap_content"
+		android:layout_height="wrap_content" android:text="Loading..."
+		android:gravity="center" />
+	<ProgressBar android:gravity="center" android:layout_width="wrap_content"
+		android:id="@+id/progressBar" android:layout_height="wrap_content"></ProgressBar>
+		<Button android:layout_width="fill_parent" android:text="Click here to open GPS settings" android:layout_gravity="bottom" android:layout_height="0dip" android:layout_weight="1" android:visibility="invisible"></Button>
+	
+	<Button android:layout_width="fill_parent" android:text="Click here to open GPS settings" android:id="@+id/empty_bt" android:layout_height="wrap_content"></Button>
+
+</LinearLayout>

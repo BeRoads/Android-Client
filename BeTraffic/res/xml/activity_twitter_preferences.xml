@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<CheckBoxPreference android:title="Harkor"
+		android:defaultValue="true" android:key="mHarkor" />
+
+	<CheckBoxPreference android:title="QKaiser"
+		android:defaultValue="true" android:key="mQkaiser" />
+
+	<CheckBoxPreference android:title="Waza_be"
+		android:defaultValue="true" android:key="mWazaBe" />
+
+
+</PreferenceScreen>

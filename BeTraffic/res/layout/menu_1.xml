@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" android:padding="6dip">
+
+	<LinearLayout android:orientation="horizontal"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_weight="1">
+		<Button android:id="@+id/btn_home_chat" style="@style/HomeButton"
+			android:text="Map" android:drawableTop="@drawable/home_btn_map"
+			android:onClick="onDefaultClick" />
+		<Button android:id="@+id/btn_home_traffic" style="@style/HomeButton"
+			android:text="Traffic" android:drawableTop="@drawable/home_btn_work"
+			android:onClick="onTrafficClick" />
+
+	</LinearLayout>
+
+	<LinearLayout android:orientation="horizontal"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_weight="1">
+		<Button android:id="@+id/btn_home_planner" style="@style/HomeButton"
+			android:text="Parking" android:drawableTop="@drawable/home_btn_parking"
+			android:onClick="onParkingClick" />
+		<Button android:id="@+id/btn_home_traffic" style="@style/HomeButton"
+			android:text="Cameras" android:drawableTop="@drawable/home_btn_cam"
+			android:onClick="onCameraClick" />
+	</LinearLayout>
+
+	<LinearLayout android:orientation="horizontal"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_weight="1">
+		<Button android:id="@+id/btn_closest_stations" style="@style/HomeButton"
+			android:text="Meteo" android:drawableTop="@drawable/home_btn_weather"
+			android:onClick="onWeatherClick" />
+
+		<Button android:id="@+id/btn_twit" style="@style/HomeButton"
+			android:text="Radar" android:drawableTop="@drawable/home_btn_radar"
+			android:onClick="onRadarClick" />
+	</LinearLayout>
+
+
+</LinearLayout>

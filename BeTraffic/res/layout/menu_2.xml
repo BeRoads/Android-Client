@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	android:orientation="vertical" android:layout_width="fill_parent"
+	android:layout_height="fill_parent" android:padding="6dip">
+	<LinearLayout android:orientation="horizontal"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_weight="1" android:visibility="invisible">
+		<Button android:id="@+id/btn_home_traffic" style="@style/HomeButton"
+			android:text="\???" android:drawableTop="@drawable/home_btn_default"
+			android:onClick="onDefaultClick" />
+		<Button android:id="@+id/btn_closest_stations" style="@style/HomeButton"
+			android:text="\???" android:drawableTop="@drawable/home_btn_default"
+			android:onClick="onDefaultClick" />
+
+		<Button android:id="@+id/btn_twit" style="@style/HomeButton"
+			android:text="Twitter" android:drawableTop="@drawable/home_btn_twit"
+			android:onClick="onTwitClick" />
+
+	</LinearLayout>
+
+	<LinearLayout android:orientation="horizontal"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_weight="1">
+		<Button android:id="@+id/btn_twit" style="@style/HomeButton"
+			android:text="Twitter" android:drawableTop="@drawable/home_btn_twit"
+			android:onClick="onTwitClick" />
+		<Button android:id="@+id/btn_closest_stations" style="@style/HomeButton"
+			android:text="About" android:drawableTop="@drawable/home_btn_default"
+			android:onClick="onAboutClick" />
+	</LinearLayout>
+
+	<LinearLayout android:orientation="horizontal"
+		android:layout_width="fill_parent" android:layout_height="wrap_content"
+		android:layout_weight="1" android:visibility="invisible">
+		<Button android:id="@+id/btn_twit" style="@style/HomeButton"
+			android:text="\???" android:drawableTop="@drawable/home_btn_default"
+			android:onClick="onDefaultClick" />
+		<Button android:id="@+id/btn_closest_stations" style="@style/HomeButton"
+			android:text="About" android:drawableTop="@drawable/home_btn_default"
+			android:onClick="onAboutClick" />
+	</LinearLayout>
+
+
+
+
+
+</LinearLayout>
