@@ -21,14 +21,11 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBar;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.profete162.WebcamWallonnes.adapter.DataBaseHelper;
-import com.profete162.WebcamWallonnes.adapter.MenuAdapter;
-import com.viewpagerindicator.CirclePageIndicator;
 
 public class WelcomeActivity extends FragmentActivity {
 
@@ -111,13 +108,13 @@ public class WelcomeActivity extends FragmentActivity {
 		setContentView(R.layout.activity_welcome);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 		
-		ViewPager mPager=(ViewPager) this.findViewById(R.id.pager);
+		/*ViewPager mPager=(ViewPager) this.findViewById(R.id.pager);
 		MenuAdapter adapter= new MenuAdapter(this);
 		mPager.setAdapter(adapter);
 		
 		CirclePageIndicator indicator = (CirclePageIndicator)findViewById(R.id.indicator);
 		indicator.setViewPager(mPager);
-		indicator.setSnap(true);
+		indicator.setSnap(true);*/
 		
 	}
 
@@ -142,11 +139,9 @@ public class WelcomeActivity extends FragmentActivity {
 
 		} catch (IOException e) {
 			handler.sendEmptyMessage(1);
-
-			e.printStackTrace();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 
@@ -174,11 +169,9 @@ public class WelcomeActivity extends FragmentActivity {
 
 	};
 
-	public void onDefaultClick(View v) {
-		Toast
-				.makeText(getBaseContext(),
-						"En cours de d�veloppement, soyez patients.",
-						Toast.LENGTH_LONG).show();
+	public void onMapClick(View v) {
+		Intent i = new Intent(this, MapActivity.class);
+		startActivity(i);
 	}
 
 	public void onCameraClick(View v) {

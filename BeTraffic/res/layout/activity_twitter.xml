@@ -7,11 +7,12 @@
 	android:background="#FFFFFFFF">
 
 	<include layout="@layout/colorstrip" />
-	
-	<fragment class="com.profete162.WebcamWallonnes.Fragments.TwitterFragment"
+
+		
+	<fragment class="com.profete162.WebcamWallonnes.Twitter.TwitterFragment"
 		android:id="@+id/titles" 
 		android:layout_width="match_parent" android:layout_height="match_parent" />
 	
-
+	
 
 </LinearLayout>
