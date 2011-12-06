@@ -20,8 +20,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.ImageView;
 
 import com.google.android.maps.GeoPoint;
@@ -142,7 +140,7 @@ public void stationDetailDialog(int index) {
 		webcamCursor.moveToPosition(index);
 		
 		Dialog dialog = new Dialog(this);
-		dialog.setContentView(R.layout.custom_dialog);
+		dialog.setContentView(R.layout.camera_dialog);
 
 		int picId=Integer.valueOf(webcamCursor.getString(webcamCursor
 				.getColumnIndex("_id")));

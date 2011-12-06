@@ -38,17 +38,20 @@ public class WeatherAdapter extends ArrayAdapter<Weather>{
 		}
 
 		TextView tMax = (TextView) row.findViewById(R.id.tmax);
-		tMax.setText(items.get(position).getTMax());
+		tMax.setText(items.get(position).getTMax()+"°C");
 		
 		TextView tMin = (TextView) row.findViewById(R.id.tmin);
-		tMin.setText(items.get(position).getTMin());
+		tMin.setText(items.get(position).getTMin()+"°C");
 		
 		TextView desc = (TextView) row.findViewById(R.id.desc);
 		desc.setText(items.get(position).getDesc());
 		
+		TextView date = (TextView) row.findViewById(R.id.date);
+		date.setText(items.get(position).getDate());
+		
 		ImageView icon= (ImageView) row.findViewById(R.id.icon);
-		System.out.println(items.get(position).getCode());
-		System.out.println(WeatherActivity.codeLink.get(items.get(position).getCode()));
+		//System.out.println(items.get(position).getCode());
+		//System.out.println(WeatherActivity.codeLink.get(items.get(position).getCode()));
 		
 		icon.setImageResource(WeatherActivity.codeLink.get(items.get(position).getCode()));
 		

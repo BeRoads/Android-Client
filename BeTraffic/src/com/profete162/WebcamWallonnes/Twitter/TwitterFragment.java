@@ -22,7 +22,7 @@ public class TwitterFragment extends ListFragment {
 	public void onResume() {
 		super.onResume();
 
-		tweets = Twitter.getTweets(1,this, "android","Waza_be: BeTraffic ",
+		tweets = Twitter.getTweets(1,this, "BeRoads","Waza_be: BeTraffic ",
 				new ArrayList<String>());
 
 	}

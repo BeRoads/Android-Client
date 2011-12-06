@@ -49,22 +49,22 @@ public class Snippets {
 	public static String getUrlFromCat(int picId, char cat) {
 		switch (cat) {
 		case 'A':
-			return "http://webcams-wallonnes.be/webcams/image_antwerpen_"
+			return "http://www.webcams-wallonnes.be/webcams/image_antwerpen_"
 					+ (picId - 101) + ".jpg";
 		case 'B':
-			return "http://webcams-wallonnes.be/webcams/image_brussel_"
+			return "http://www.webcams-wallonnes.be/webcams/image_brussel_"
 					+ (picId - 201) + ".jpg";
 		case 'C':
-			return "http://webcams-wallonnes.be/webcams/image_ringbxl_"
+			return "http://www.webcams-wallonnes.be/webcams/image_ringbxl_"
 					+ (picId - 301) + ".jpg";
 		case 'D':
-			return "http://webcams-wallonnes.be/webcams/image_gand_"
+			return "http://www.webcams-wallonnes.be/webcams/image_gand_"
 					+ (picId - 401) + ".jpg";
 		case 'E':
-			return "http://webcams-wallonnes.be/webcams/image_lummen_"
+			return "http://www.webcams-wallonnes.be/webcams/image_lummen_"
 					+ (picId - 501) + ".jpg";
 		case 'F':
-			return "http://webcams-wallonnes.be/webcams/image" + picId + ".jpg";
+			return "http://www.webcams-wallonnes.be/webcams/image" + picId + ".jpg";
 		default:
 			return null;
 		}

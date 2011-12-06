@@ -1,6 +1,5 @@
 package com.profete162.WebcamWallonnes;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Locale;
@@ -45,8 +44,8 @@ public class WelcomeActivity extends FragmentActivity {
 	TextView tvLocation;
 	TextView tvAccuraty;
 	ImageView ivDot;
-	
-	int accuracy=0;
+
+	int accuracy = 0;
 
 	List<Address> addresses = null;
 
@@ -144,12 +143,8 @@ public class WelcomeActivity extends FragmentActivity {
 						lastLocation.getLatitude(),
 						lastLocation.getLongitude(), 1);
 				handler.sendEmptyMessage(0);
-
-			} catch (IOException e) {
-				handler.sendEmptyMessage(1);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				// e.printStackTrace();
+				handler.sendEmptyMessage(1);
 			}
 		else
 			handler.sendEmptyMessage(2);
@@ -158,7 +153,7 @@ public class WelcomeActivity extends FragmentActivity {
 	private Handler handler = new Handler() {
 
 		public void handleMessage(android.os.Message msg) {
-			switch (accuracy){
+			switch (accuracy) {
 			case 0:
 				ivDot.setBackgroundResource(R.drawable.dotred);
 				break;
@@ -169,7 +164,7 @@ public class WelcomeActivity extends FragmentActivity {
 				ivDot.setBackgroundResource(R.drawable.dotblue);
 				break;
 			}
-			
+
 			if (msg.what == 0) {
 
 				tvLocation.setText(addresses.get(0).getAddressLine(0) + ", "
@@ -201,7 +196,8 @@ public class WelcomeActivity extends FragmentActivity {
 				tvAccuraty.setText("");
 				tvLocation.setOnClickListener(new OnClickListener() {
 					public void onClick(View arg0) {
-						Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+						Intent myIntent = new Intent(
+								Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 						startActivity(myIntent);
 					}
 				});
@@ -277,11 +273,11 @@ public class WelcomeActivity extends FragmentActivity {
 		public void onLocationChanged(final Location loc) {
 
 			if (loc != null) {
-				//Toast.makeText(getBaseContext(), "GPS: " + loc.getAccuracy(),
-				//		Toast.LENGTH_LONG).show();
+				// Toast.makeText(getBaseContext(), "GPS: " + loc.getAccuracy(),
+				// Toast.LENGTH_LONG).show();
 				lastLocation = loc;
 				if (loc.getAccuracy() <= 25) {
-					accuracy=2;
+					accuracy = 2;
 					new Thread(new Runnable() {
 						public void run() {
 							displayLocation();
@@ -315,11 +311,12 @@ public class WelcomeActivity extends FragmentActivity {
 		public void onLocationChanged(final Location loc) {
 
 			if (loc != null) {
-				//Toast.makeText(getBaseContext(),
-				//		"Network: " + loc.getAccuracy(), Toast.LENGTH_LONG)
-				//		.show();
-				locationManager.removeUpdates(locationNetworkListener);
-				accuracy=1;
+				// Toast.makeText(getBaseContext(),
+				// "Network: " + loc.getAccuracy(), Toast.LENGTH_LONG)
+				// .show();
+				if (locationManager != null)
+					locationManager.removeUpdates(locationNetworkListener);
+				accuracy = 1;
 				lastLocation = loc;
 				new Thread(new Runnable() {
 					public void run() {

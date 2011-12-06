@@ -180,7 +180,8 @@ public class WeatherActivity extends FragmentActivity {
 							weatherObject.getString("tempMinC"),
 							weatherObject.getString("winddir16Point"),
 							weatherObject.getString("windspeedKmph"),
-							weatherObject.getInt("weatherCode")));
+							weatherObject.getInt("weatherCode"),
+							weatherObject.getString("date")));
 
 				}
 
