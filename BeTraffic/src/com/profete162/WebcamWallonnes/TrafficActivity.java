@@ -68,12 +68,10 @@ public class TrafficActivity extends FragmentActivity {
 
 			}
 
-			String url = "http://iway.alwaysdata.net/api/trafic/?region=all&from="
+			String url = "http://91.121.10.214/The-DataTank/IWay/TrafficEvent/"+ getString(R.string.lan) +"/all/?format=json&from="
 					+ GPS[0]
 					+ ","
-					+ GPS[1]
-					+ "&area=100&lang="
-					+ getString(R.string.lan) + "&format=json";
+					+ GPS[1];
 			System.out.println("*** URL:" + url);
 
 			try {
@@ -84,9 +82,8 @@ public class TrafficActivity extends FragmentActivity {
 				// Log.i("MY INFO", r.toString());
 				TrafficList obj = gson.fromJson(r, TrafficList.class);
 				// TODO DISTANCE
-				for (Traffic traf : obj.traficevent)
-					list.add(new Traffic(traf.getName(), traf.getDesc(), traf
-							.getSource(), traf.getLat(), traf.getLon()));
+				for (Traffic traf : obj.item)
+					list.add(traf);
 
 			} catch (Exception ex) {
 				ex.printStackTrace();
@@ -104,26 +101,26 @@ public class TrafficActivity extends FragmentActivity {
 
 	public class TrafficList {
 
-		private List<Traffic> traficevent;
+		private List<Traffic> item;
 
 		public List<Traffic> getTraffics() {
-			return traficevent;
+			return item;
 		}
 
 	}
 
 	public class Traffic {
 		private String source;
-		private String name;
-		private String description;
+		private String message;
+		private String category;
 		private double lat;
 		private double lng;
 
-		public Traffic(String name, String desc, String source, double lat,
+		public Traffic(String category, String message, String source, double lat,
 				double lon) {
 			this.source = source;
-			this.name = name;
-			this.description = desc;
+			this.message = message;
+			this.category = category;
 			this.lat = lat;
 			this.lng = lon;
 		}
@@ -131,9 +128,13 @@ public class TrafficActivity extends FragmentActivity {
 		public String getSource() {
 			return this.source;
 		}
+		
+		public String getCategory() {
+			return this.category;
+		}
 
-		public String getName() {
-			return this.name;
+		public String getMessage() {
+			return this.message;
 		}
 
 		public double getLat() {
@@ -144,9 +145,6 @@ public class TrafficActivity extends FragmentActivity {
 			return this.lng;
 		}
 
-		public String getDesc() {
-			return this.description;
-		}
 
 	}
 
@@ -201,7 +199,7 @@ public class TrafficActivity extends FragmentActivity {
 			Traffic clickedItem = (Traffic) adapter.getItem(position);
 
 			AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-			builder.setMessage(clickedItem.getDesc()).setCancelable(false)
+			builder.setMessage(clickedItem.getMessage()).setCancelable(false)
 					.setNeutralButton(android.R.string.ok,
 							new DialogInterface.OnClickListener() {
 								public void onClick(DialogInterface dialog,

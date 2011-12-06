@@ -19,9 +19,13 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.ActionBar;
 import android.support.v4.app.FragmentActivity;
+import android.text.Html;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -40,12 +44,14 @@ public class WelcomeActivity extends FragmentActivity {
 
 	TextView tvLocation;
 	TextView tvAccuraty;
+	ImageView ivDot;
 	
-	
+	int accuracy=0;
+
 	List<Address> addresses = null;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState)  {
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_welcome);
 
@@ -67,13 +73,14 @@ public class WelcomeActivity extends FragmentActivity {
 				+ settings.getString("pVersion", "X") + "***");
 		if (!myVersion.equals(settings.getString("pVersion", "X"))) {
 			try {
-				 Toast.makeText(this, "Database Updated",
-				 Toast.LENGTH_SHORT).show();
+				Toast.makeText(this, "Database Updated", Toast.LENGTH_SHORT)
+						.show();
 				myDbHelper.forceCreateDataBase(this);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				Toast.makeText(this, "Unable to create database", Toast.LENGTH_LONG).show();
+				Toast.makeText(this, "Unable to create database",
+						Toast.LENGTH_LONG).show();
 			}
 		}
 
@@ -86,10 +93,22 @@ public class WelcomeActivity extends FragmentActivity {
 
 		tvLocation = (TextView) findViewById(R.id.tv_position);
 		tvAccuraty = (TextView) findViewById(R.id.tv_accuracy);
+		ivDot = (ImageView) findViewById(R.id.iv_dot);
 
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		locationGpsListener = new MyGPSLocationListener();
 		locationNetworkListener = new MyNetworkLocationListener();
+
+		/*
+		 * Je prends la derniere location connue
+		 */
+		List<String> providers = locationManager.getProviders(true);
+		for (int i = providers.size() - 1; i >= 0; i--) {
+			lastLocation = locationManager.getLastKnownLocation(providers
+					.get(i));
+			if (lastLocation != null)
+				break;
+		}
 
 		new Thread(new Runnable() {
 			public void run() {
@@ -97,80 +116,103 @@ public class WelcomeActivity extends FragmentActivity {
 			}
 		}).start();
 
+	}
+
+	public void setWelcomeContent() {
+		setContentView(R.layout.activity_welcome);
+		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
 		/*
-		 * Loop over the array backwards, and if you get an accurate location,
-		 * then break out the loop
+		 * ViewPager mPager=(ViewPager) this.findViewById(R.id.pager);
+		 * MenuAdapter adapter= new MenuAdapter(this);
+		 * mPager.setAdapter(adapter);
+		 * 
+		 * CirclePageIndicator indicator =
+		 * (CirclePageIndicator)findViewById(R.id.indicator);
+		 * indicator.setViewPager(mPager); indicator.setSnap(true);
 		 */
 
 	}
-	
-	public void setWelcomeContent(){
-		setContentView(R.layout.activity_welcome);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-		
-		/*ViewPager mPager=(ViewPager) this.findViewById(R.id.pager);
-		MenuAdapter adapter= new MenuAdapter(this);
-		mPager.setAdapter(adapter);
-		
-		CirclePageIndicator indicator = (CirclePageIndicator)findViewById(R.id.indicator);
-		indicator.setViewPager(mPager);
-		indicator.setSnap(true);*/
-		
-	}
 
 	public void displayLocation() {
-		
-		List<String> providers = locationManager.getProviders(true);
-		Location l = null;
-		for (int i = providers.size() - 1; i >= 0; i--) {
-			l = locationManager.getLastKnownLocation(providers.get(i));
-			if (l != null)
-				break;
-		}
 
-		lastLocation = l;
 		Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-		
-		try {
-			addresses = geocoder.getFromLocation(lastLocation.getLatitude(), lastLocation
-					.getLongitude(), 1);
-			handler.sendEmptyMessage(0);
 
+		if (lastLocation != null)
+			try {
+				addresses = geocoder.getFromLocation(
+						lastLocation.getLatitude(),
+						lastLocation.getLongitude(), 1);
+				handler.sendEmptyMessage(0);
 
-		} catch (IOException e) {
-			handler.sendEmptyMessage(1);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-		}
+			} catch (IOException e) {
+				handler.sendEmptyMessage(1);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				// e.printStackTrace();
+			}
+		else
+			handler.sendEmptyMessage(2);
 	}
 
 	private Handler handler = new Handler() {
 
 		public void handleMessage(android.os.Message msg) {
-			if(msg.what == 0) {
+			switch (accuracy){
+			case 0:
+				ivDot.setBackgroundResource(R.drawable.dotred);
+				break;
+			case 1:
+				ivDot.setBackgroundResource(R.drawable.dotorange);
+				break;
+			case 2:
+				ivDot.setBackgroundResource(R.drawable.dotblue);
+				break;
+			}
+			
+			if (msg.what == 0) {
 
 				tvLocation.setText(addresses.get(0).getAddressLine(0) + ", "
 						+ addresses.get(0).getLocality());
-				tvAccuraty.setText("(" + (int) lastLocation.getAccuracy() + "m)");
+				tvAccuraty.setText("(" + (int) lastLocation.getAccuracy()
+						+ "m)");
+				tvLocation.setOnClickListener(null);
 
-				}
-			if(msg.what == 1) {
+			}
+			if (msg.what == 1) {
 				String masque = new String("#0.##");
 				DecimalFormat form = new DecimalFormat(masque);
-				tvLocation.setText(form.format(lastLocation.getLatitude()) + ";"
-						+ form.format(lastLocation.getLongitude())+" @"+lastLocation.getAccuracy()+"m");
+				tvLocation.setText(form.format(lastLocation.getLatitude())
+						+ ";" + form.format(lastLocation.getLongitude()) + " @"
+						+ lastLocation.getAccuracy() + "m");
 				tvAccuraty.setText("(No Internet)");
+				tvLocation.setOnClickListener(null);
 
-				}
-
+			}
+			if (msg.what == 2) {
+				locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+				String txt = "";
+				for (String aProvider : locationManager.getAllProviders())
+					txt += (aProvider
+							+ ": <b>"
+							+ (locationManager.isProviderEnabled(aProvider) ? "ON "
+									: "OFF ") + "</b>");
+				tvLocation.setText(Html.fromHtml(txt));
+				tvAccuraty.setText("");
+				tvLocation.setOnClickListener(new OnClickListener() {
+					public void onClick(View arg0) {
+						Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+						startActivity(myIntent);
+					}
+				});
+			}
 
 		};
 
 	};
 
 	public void onMapClick(View v) {
-		Intent i = new Intent(this, MapActivity.class);
+		Intent i = new Intent(this, MyMapActivity.class);
 		startActivity(i);
 	}
 
@@ -213,15 +255,17 @@ public class WelcomeActivity extends FragmentActivity {
 
 		dialog.show();
 	}
-	private void putBundle(Intent i){
-		try{
+
+	private void putBundle(Intent i) {
+		try {
 			Bundle bundle = new Bundle();
 			bundle.putDouble("lat", lastLocation.getLatitude());
 			bundle.putDouble("lng", lastLocation.getLongitude());
 			i.putExtras(bundle);
 			startActivity(i);
-		}catch(Exception e){
-			Toast.makeText(getBaseContext(), "Please wait for location", Toast.LENGTH_LONG).show();
+		} catch (Exception e) {
+			Toast.makeText(getBaseContext(), "Please wait for location",
+					Toast.LENGTH_LONG).show();
 		}
 
 	}
@@ -232,12 +276,12 @@ public class WelcomeActivity extends FragmentActivity {
 
 		public void onLocationChanged(final Location loc) {
 
-			if (loc != null && lastLocation != null) {
-				// Toast.makeText(getBaseContext(), "GPS: "+loc.getAccuracy(),
-				// Toast.LENGTH_LONG).show();
-				
+			if (loc != null) {
+				//Toast.makeText(getBaseContext(), "GPS: " + loc.getAccuracy(),
+				//		Toast.LENGTH_LONG).show();
 				lastLocation = loc;
 				if (loc.getAccuracy() <= 25) {
+					accuracy=2;
 					new Thread(new Runnable() {
 						public void run() {
 							displayLocation();
@@ -270,11 +314,18 @@ public class WelcomeActivity extends FragmentActivity {
 
 		public void onLocationChanged(final Location loc) {
 
-			if (loc != null && lastLocation != null && locationManager != null) {
-				// Toast.makeText(getBaseContext(),
-				// "Network: "+loc.getAccuracy(), Toast.LENGTH_LONG).show();
+			if (loc != null) {
+				//Toast.makeText(getBaseContext(),
+				//		"Network: " + loc.getAccuracy(), Toast.LENGTH_LONG)
+				//		.show();
 				locationManager.removeUpdates(locationNetworkListener);
+				accuracy=1;
 				lastLocation = loc;
+				new Thread(new Runnable() {
+					public void run() {
+						displayLocation();
+					}
+				}).start();
 			}
 		}
 

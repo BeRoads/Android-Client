@@ -16,10 +16,11 @@
         android:gravity="center"
         android:orientation="horizontal" >
 
-        <View
+        <ImageView
+            android:id="@+id/iv_dot"
             android:layout_width="9dip"
             android:layout_height="9dip"
-            android:background="@drawable/dot" />
+            android:background="@drawable/dotblue" />
 
         <TextView
             android:id="@+id/tv_position"

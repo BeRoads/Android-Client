@@ -41,7 +41,7 @@ public class TrafficAdapter extends ArrayAdapter<Traffic>{
 		}
 
 		TextView tMax = (TextView) row.findViewById(R.id.tname);
-		tMax.setText(items.get(position).getName());
+		tMax.setText(items.get(position).getCategory());
 		
 		TextView tMin = (TextView) row.findViewById(R.id.tsource);
 		tMin.setText(items.get(position).getSource());

@@ -3,9 +3,6 @@ package com.profete162.WebcamWallonnes.Twitter;
 import java.io.File;
 import java.util.ArrayList;
 
-import com.WazaBe.MyDevTools.Twitter.Twitter;
-import com.WazaBe.MyDevTools.bo.Tweet;
-
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 import android.widget.ImageView;
@@ -26,7 +23,7 @@ public class TwitterFragment extends ListFragment {
 		super.onResume();
 
 		tweets = Twitter.getTweets(1,this, "android","Waza_be: BeTraffic ",
-				new ArrayList<String>(),this.getListView());
+				new ArrayList<String>());
 
 	}
 

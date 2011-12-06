@@ -1,10 +1,10 @@
 package com.profete162.WebcamWallonnes;
 
 import android.os.Bundle;
-import android.support.v4.app.FragmentMapActivity;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
 
-public class MapActivity extends FragmentMapActivity {
+public class MyMapActivity extends FragmentActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -23,10 +23,5 @@ public class MapActivity extends FragmentMapActivity {
 
 	}
 
-	@Override
-	protected boolean isRouteDisplayed() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 
 }
