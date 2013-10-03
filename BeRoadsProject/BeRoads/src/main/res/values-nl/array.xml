@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="menuItems">
+        <item> Verkeer </item>
+        <item> Camera’s </item>
+        <item> Flitspalen </item>
+        <item> Kaart </item>
+        <item> Over ons </item>
+    </string-array>
+</resources>

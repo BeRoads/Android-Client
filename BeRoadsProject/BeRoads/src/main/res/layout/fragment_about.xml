@@ -1,0 +1,28 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+    <LinearLayout
+            android:id="@+id/layout_root"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <include
+                android:id="@+id/people1"
+                layout="@layout/row_people"/>
+
+        <include
+                android:id="@+id/people2"
+                layout="@layout/row_people"/>
+
+        <include
+                android:id="@+id/people3"
+                layout="@layout/row_people"/>
+
+        <include
+                android:id="@+id/people4"
+                layout="@layout/row_people"/>
+
+    </LinearLayout>
+</ScrollView>

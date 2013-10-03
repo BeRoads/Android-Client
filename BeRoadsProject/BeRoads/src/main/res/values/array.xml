@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="menuItems">
+        <item> Traffic </item>
+        <item> Caméras </item>
+        <item> Radars </item>
+        <item> Carte </item>
+        <item> A propos </item>
+    </string-array>
+    <string-array name="menuIcons">
+        <item>traffic</item>
+        <item>webcam</item>
+        <item>radar</item>
+        <item>map</item>
+        <item>about</item>
+    </string-array>
+
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BeRoads</string>
+    <string name="action_settings">Instellingen</string>
+    <string name="lan">nl</string>
+    <string name="starred">Favorieten</string>
+    <string name="toStar">Toevoegen aan favorieten</string>
+    <string name="toUnstar">Verwijderen uit favorieten</string>
+    <string name="share">’BeRoads verkeersinfo’ delen via...</string>
+    <string name="getBeRoads">Download gratis de Android app BeRoads:</string>
+    <string name="tutoFav"> Hou de gewenste regel ingedrukt om item aan favorieten toe te voegen/verwijderen.
+    </string>
+    <string name="tutoswipe">Swipe van links naar rechts om het menu te openen...
+    </string>
+    <string name="tutoTabs"><b>TIP:</b>swipe van rechts naar links om de camera’s te sorteren volgens andere criteria.</string>
+    <string name="orderAlphabet">Volgens alfabet</string>
+    <string name="orderDist">Volgens afstand</string>
+
+
+</resources>
