@@ -1,6 +1,7 @@
 package com.profete162.WebcamWallonnes.Adapter;
 
 import android.content.Context;
+import android.location.Location;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,16 +21,15 @@ public class TrafficAdapter extends ArrayAdapter<Traffic>{
 
 	private LayoutInflater myLayoutInflater;
 	protected ArrayList<Traffic> items;
-	double currentLat; double currentLon;
+	Location currentLoc;
 	
-	public TrafficAdapter(Context context, int textViewResourceId,ArrayList<Traffic> list,LayoutInflater layoutInflater,double currentLat, double currentLon) {
+	public TrafficAdapter(Context context, int textViewResourceId,ArrayList<Traffic> list,LayoutInflater layoutInflater,Location loc) {
 		super(context, textViewResourceId, list);
 		this.myLayoutInflater = layoutInflater;
 		this.items = list;
-		this.currentLat = currentLat;
-		this.currentLon = currentLon;
+		this.currentLoc=loc;
 	}
-	
+
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
@@ -49,8 +49,13 @@ public class TrafficAdapter extends ArrayAdapter<Traffic>{
 		tMin.setText(items.get(position).getMessage());
 		
 		TextView tDis = (TextView) row.findViewById(R.id.tDist);
-        int iDistance = (int) Utils.getDistance(currentLat, currentLon, items.get(position).getLat(), items.get(position).getLon())/100;
-		tDis.setText((double) iDistance / 10 + "km");
+        if(currentLoc!=null){
+            tDis.setVisibility(View.VISIBLE);
+            int iDistance = (int) Utils.getDistance(currentLoc.getLatitude(), currentLoc.getLongitude(), items.get(position).getLat(), items.get(position).getLon())/100;
+            tDis.setText((double) iDistance / 10 + "km");
+        }else
+            tDis.setVisibility(View.GONE);
+
 
         if(items.get(position).getTime()!=0){
             TextView tTime = (TextView) row.findViewById(R.id.tTime);

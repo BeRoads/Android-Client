@@ -12,8 +12,6 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.Marker;
-import com.koushikdutta.urlimageviewhelper.UrlImageViewCallback;
-import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 import com.profete162.WebcamWallonnes.R;
 import com.profete162.WebcamWallonnes.Utils.Utils;
 

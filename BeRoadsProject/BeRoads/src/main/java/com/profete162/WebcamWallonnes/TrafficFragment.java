@@ -11,11 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.profete162.WebcamWallonnes.Adapter.TrafficAdapter;
-import com.profete162.WebcamWallonnes.Utils.GPS;
 import com.profete162.WebcamWallonnes.Utils.NumberedListFragment;
 import com.profete162.WebcamWallonnes.Utils.Utils;
 import com.profete162.WebcamWallonnes.Utils.Web;
@@ -29,30 +27,15 @@ import java.util.ArrayList;
 public class TrafficFragment extends NumberedListFragment {
 
     public static String FILENAME = "traffic.json";
-    AsyncTask<String, Void, ApiResponse> task;
+    AsyncTask<String, Void, ApiResponse> task = null;
     private Location location;
+    ApiResponse rep = null;
 
-    public void updateToLoc(Location location) {
-
-
+    public void updateToLoc(Location newLocation) {
         try {
-            this.location=location;
-
-            try {
-                TrafficFragment.this.getActivity().runOnUiThread(
-                        new Runnable() {
-                            public void run() {
-                                try {
-                                    task.execute("CVE");
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
+            this.location = newLocation;
+            new APIRequest().execute("");
+            getActivity().setProgressBarIndeterminateVisibility(true);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -81,65 +64,47 @@ public class TrafficFragment extends NumberedListFragment {
 
         super.onActivityCreated(savedInstanceState);
 
-        if (PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getBoolean("tuto", true)  && ((DrawerActivity) this.getActivity()).mDrawerLayout != null)
+        if (PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getBoolean("tuto", true) && ((DrawerActivity) this.getActivity()).mDrawerLayout != null)
             this.getView().findViewById(R.id.tuto).setVisibility(View.VISIBLE);
 
         this.getListView().setDivider(null);
         task = new APIRequest();
 
-            location=((DrawerActivity)getActivity()).loc;
+        location = ((DrawerActivity) getActivity()).loc;
 
-        if (location == null){
-           // Toast.makeText(this.getActivity(), "Localisation a échoué", Toast.LENGTH_LONG).show();
-            try {
-                getActivity().setProgressBarIndeterminateVisibility(false);
-            } catch (Exception e) {
-                e.printStackTrace();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                displayDatafromSd();
             }
-        }
-        else
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    displayDatafromSd();
-                }
-            }).start();
+        }).start();
 
     }
 
     public void displayDatafromSd() {
-
+        rep = null;
         Activity a = TrafficFragment.this.getActivity();
-        // Log.i("", "Activity2: " +
-        // PositionFragment.this.getSherlockActivity());
         try {
             File f = new File(a.getDir("CACHE", Context.MODE_PRIVATE),
                     FILENAME);
-            // Log.i("", "File: " + f);
+
             if (f.exists()) {
                 BufferedReader is = Utils.getFromFile(f);
                 Gson gson = new Gson();
                 if (is != null) {
-                    final ApiResponse rep = gson.fromJson(is, ApiResponse.class);
-
-                    if (rep != null)
-                        TrafficFragment.this.getActivity().runOnUiThread(
-                                new Runnable() {
-                                    public void run() {
-                                        updateUI(rep, false);
-                                    }
-                                });
-
+                    rep = gson.fromJson(is, ApiResponse.class);
                 }
             }
-        } catch (Exception f) {
-            getActivity().setProgressBarIndeterminateVisibility(false);
-            f.printStackTrace();
 
+            if (rep != null)
+                TrafficFragment.this.getActivity().runOnUiThread(
+                        new Runnable() {
+                            public void run() {
+                                updateUI(rep, false);
+                            }
+                        });
 
-        }
-
-        try {
             TrafficFragment.this.getActivity().runOnUiThread(
                     new Runnable() {
                         public void run() {
@@ -150,6 +115,8 @@ public class TrafficFragment extends NumberedListFragment {
                             }
                         }
                     });
+
+
         } catch (Exception e) {
             getActivity().setProgressBarIndeterminateVisibility(false);
             e.printStackTrace();
@@ -166,7 +133,8 @@ public class TrafficFragment extends NumberedListFragment {
                 if (this.getListAdapter() == null)
                     this.setListAdapter(new TrafficAdapter(getActivity(),
                             R.layout.row_traffic, result.TrafficEvent.getTraffics(), getActivity()
-                            .getLayoutInflater(), location.getLatitude(), location.getLongitude()));
+                            .getLayoutInflater(), location));
+
                 else {
                     TrafficAdapter a = (TrafficAdapter) this.getListAdapter();
                     a.clear();
@@ -200,38 +168,39 @@ public class TrafficFragment extends NumberedListFragment {
         super.onResume();
     }
 
-    
 
     public class APIRequest extends AsyncTask<String, Void, ApiResponse> {
 
         @Override
         protected ApiResponse doInBackground(String... params) {
 
-            if (location != null) {
+            try {
+                String url;
+                if (location != null)
+                    url = "http://data.beroads.com/IWay/TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json&from="
+                            + location.getLatitude()
+                            + ","
+                            + location.getLongitude();
+                else
+                    url = "http://data.beroads.com/IWay/TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json";
 
-                //int randomNum = 0;
-                //Random ran = new Random();
-                //location.setLongitude(ran.nextDouble()*4.3+2.37);
-                //location.setLatitude(ran.nextDouble()*2+49.5);
-                String url = "http://data.beroads.com/IWay/TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json&from="
-                        + location.getLatitude()
-                        + ","
-                        + location.getLongitude();
                 System.out.println("*** URL:" + url);
                 try {
-
                     InputStream content = Web.DownloadJsonFromUrlAndCacheToSd(url,
                             FILENAME, TrafficFragment.this.getActivity());
-
                     return new Gson().fromJson(new InputStreamReader(content), ApiResponse.class);
-
-
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
 
-            } else
-                System.out.println("*** LOC:" + location);
+            } catch (
+                    Exception e
+                    )
+
+            {
+                e.printStackTrace();
+            }
+
             return null;
         }
 

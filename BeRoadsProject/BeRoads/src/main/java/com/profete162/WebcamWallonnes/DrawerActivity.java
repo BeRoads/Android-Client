@@ -78,7 +78,7 @@ public class DrawerActivity extends FragmentActivity {
 
         super.onCreate(savedInstanceState);
 
-        loc = GPS.getLastLoc(this);
+       // loc = GPS.getLastLoc(this);
         setContentView(R.layout.activity_main);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mTitle = this.getString(R.string.app_name);
@@ -212,7 +212,7 @@ public class DrawerActivity extends FragmentActivity {
             try {
                 locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, locationListener);
             } catch (Exception e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
         }
 

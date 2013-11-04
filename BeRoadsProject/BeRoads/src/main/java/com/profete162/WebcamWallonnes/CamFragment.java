@@ -9,8 +9,6 @@ import android.os.Parcelable;
 import android.preference.PreferenceManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,13 +19,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 import com.profete162.WebcamWallonnes.Adapter.SectionedAdapter;
 import com.profete162.WebcamWallonnes.Adapter.WebcamAdapter;
 import com.profete162.WebcamWallonnes.Utils.DataBaseHelper;
 import com.profete162.WebcamWallonnes.Utils.NumberedFragment;
 import com.profete162.WebcamWallonnes.Utils.Utils;
 import com.profete162.WebcamWallonnes.Utils.Webcam;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -115,7 +113,11 @@ public class CamFragment extends NumberedFragment {
 
                 ImageView view = new ImageView(CamFragment.this
                         .getActivity());
-                UrlImageViewHelper.setUrlDrawable(view, url, null, 20 * DateUtils.MINUTE_IN_MILLIS);
+
+                Picasso.with(CamFragment.this.getActivity())
+                        .load(url)
+                        .into(view);
+
                 view.setLayoutParams(new LayoutParams(
                         LayoutParams.MATCH_PARENT,
                         LayoutParams.MATCH_PARENT));

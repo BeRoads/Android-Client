@@ -24,12 +24,12 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
-import com.koushikdutta.urlimageviewhelper.UrlImageViewHelper;
 import com.profete162.WebcamWallonnes.Adapter.PopupTrafficAdapter;
 import com.profete162.WebcamWallonnes.Utils.DataBaseHelper;
 import com.profete162.WebcamWallonnes.Utils.Utils;
 import com.profete162.WebcamWallonnes.Utils.Web;
 import com.profete162.WebcamWallonnes.Utils.Webcam;
+import com.squareup.picasso.Picasso;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -260,7 +260,8 @@ public class NotifMapFragment extends SupportMapFragment {
 
                                         ImageView view = new ImageView(NotifMapFragment.this.getParentFragment()
                                                 .getActivity());
-                                        UrlImageViewHelper.setUrlDrawable(view, text[1], null, 20 * DateUtils.MINUTE_IN_MILLIS);
+                                        //UrlImageViewHelper.setUrlDrawable(view, text[1], null, 20 * DateUtils.MINUTE_IN_MILLIS);
+                                        Picasso.with(getContext()).load( text[1]).into(view);
                                         view.setLayoutParams(new ViewGroup.LayoutParams(
                                                 ViewGroup.LayoutParams.MATCH_PARENT,
                                                 ViewGroup.LayoutParams.MATCH_PARENT));
