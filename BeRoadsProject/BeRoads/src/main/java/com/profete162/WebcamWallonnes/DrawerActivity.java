@@ -11,6 +11,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -40,6 +41,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DrawerActivity extends FragmentActivity {
 
     public static final String TAG = "WazaBe";
+    int count=0;
     public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
     public static final String PROPERTY_APP_VERSION = "appVersion";
@@ -103,6 +105,12 @@ public class DrawerActivity extends FragmentActivity {
 
                 /** Called when a drawer has settled in a completely open state. */
                 public void onDrawerOpened(View drawerView) {
+                    count++;
+                    if(count>5){
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=dQw4w9WgXcQ"));
+                        startActivity(browserIntent);
+                        count=0;
+                    }
                     getActionBar().setTitle(getString(R.string.app_name));
                     getActionBar().setIcon(R.drawable.ic_launcher);
                     if (PreferenceManager.getDefaultSharedPreferences(DrawerActivity.this).getBoolean("tuto", true))
@@ -139,7 +147,7 @@ public class DrawerActivity extends FragmentActivity {
 
                 }
             });
-            mDrawerList.addFooterView(b);
+           // mDrawerList.addFooterView(b);
             mDrawerList.setAdapter(new MenuAdapter(this,
                     R.layout.row_menu, mMenuTitles));
 
@@ -442,8 +450,10 @@ public class DrawerActivity extends FragmentActivity {
     }
 
     private class DrawerItemClickListener implements ListView.OnItemClickListener {
+
         @Override
         public void onItemClick(AdapterView parent, View view, int position, long id) {
+            count=0;
             selectItem(position, true);
         }
 

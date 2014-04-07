@@ -21,7 +21,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
 public class Web {
 
@@ -135,9 +134,7 @@ public class Web {
         } catch (IOException e) {
             // Log.w("getClass().getSimpleName()", " Error for URL " + url, e);
         }
-
         return null;
-
     }
 
     public class CopyInputStream {
