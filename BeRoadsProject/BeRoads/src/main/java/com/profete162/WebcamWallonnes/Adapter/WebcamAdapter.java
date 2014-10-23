@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.profete162.WebcamWallonnes.Utils.Webcam;
+import com.profete162.WebcamWallonnes.models.Webcam;
 import com.profete162.WebcamWallonnes.R;
 import com.squareup.picasso.Picasso;
 

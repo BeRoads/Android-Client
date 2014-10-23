@@ -9,7 +9,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +27,9 @@ import com.profete162.WebcamWallonnes.Adapter.PopupTrafficAdapter;
 import com.profete162.WebcamWallonnes.Utils.DataBaseHelper;
 import com.profete162.WebcamWallonnes.Utils.Utils;
 import com.profete162.WebcamWallonnes.Utils.Web;
-import com.profete162.WebcamWallonnes.Utils.Webcam;
+import com.profete162.WebcamWallonnes.models.RadarItem;
+import com.profete162.WebcamWallonnes.models.Traffic;
+import com.profete162.WebcamWallonnes.models.Webcam;
 import com.squareup.picasso.Picasso;
 
 import java.io.InputStream;
@@ -167,7 +168,7 @@ public class NotifMapFragment extends SupportMapFragment {
             if (result != null) {
 
 
-                for (TrafficFragment.Traffic aTraffic : result.TrafficEvent.getTraffics())
+                for (Traffic aTraffic : result.TrafficEvent.getTraffics())
                     mMap.addMarker(new MarkerOptions()
                             .position(new LatLng(aTraffic.getLat(), aTraffic.getLon()))
                             .title("T;" + ";" + aTraffic.getCategory())
@@ -224,7 +225,7 @@ public class NotifMapFragment extends SupportMapFragment {
         protected void onPostExecute(RadarFragment.ApiResponse result) {
             try {
                 if (result != null) {
-                    for (RadarFragment.Item aRadar : result.Radar.getRadars())
+                    for (RadarItem aRadar : result.Radar.getItem())
                         mMap.addMarker(new MarkerOptions()
                                 .position(new LatLng(aRadar.getLat(), aRadar.getLng()))
                                 .title("R;" + aRadar.getType() + ";" + aRadar.getAddress())

@@ -24,7 +24,7 @@ import com.profete162.WebcamWallonnes.Adapter.WebcamAdapter;
 import com.profete162.WebcamWallonnes.Utils.DataBaseHelper;
 import com.profete162.WebcamWallonnes.Utils.NumberedFragment;
 import com.profete162.WebcamWallonnes.Utils.Utils;
-import com.profete162.WebcamWallonnes.Utils.Webcam;
+import com.profete162.WebcamWallonnes.models.Webcam;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.profete162.WebcamWallonnes.Utils;
+package com.profete162.WebcamWallonnes.models;
 
 /**
  * Created by 201601 on 18/06/13.

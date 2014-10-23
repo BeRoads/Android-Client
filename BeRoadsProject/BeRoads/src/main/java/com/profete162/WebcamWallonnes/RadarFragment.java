@@ -16,6 +16,7 @@ import com.profete162.WebcamWallonnes.Adapter.RadarAdapter;
 import com.profete162.WebcamWallonnes.Utils.NumberedListFragment;
 import com.profete162.WebcamWallonnes.Utils.Utils;
 import com.profete162.WebcamWallonnes.Utils.Web;
+import com.profete162.WebcamWallonnes.models.RadarItem;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -103,7 +104,7 @@ public class RadarFragment extends NumberedListFragment {
             else{
                 RadarAdapter a = (RadarAdapter) this.getListAdapter();
                 a.clear();
-                for (Item aRadar:result.Radar.getRadars())
+                for (RadarItem aRadar:result.Radar.getItem())
                     a.add(aRadar);
 
                 a.notifyDataSetChanged();
@@ -115,7 +116,7 @@ public class RadarFragment extends NumberedListFragment {
                 @Override
                 public void onItemClick(AdapterView<?> adapter, View view, int position, long arg) {
                     Log.i("FragmentComplexList", "Item clicked: " + arg);
-                    Item i = result.Radar.item.get((int) arg);
+                    RadarItem i = result.Radar.item.get((int) arg);
                     try {
                         Uri streetViewUri = Uri.parse(
                                 "google.streetview:cbll=" + i.getLat() + "," + i.getLng() + "&cbp=1,90,,0,1.0&mz=20");
@@ -139,9 +140,9 @@ public class RadarFragment extends NumberedListFragment {
         task.cancel(true);
     }
 
-    public class CustomComparator implements Comparator<Item> {
+    public class CustomComparator implements Comparator<RadarItem> {
         @Override
-        public int compare(Item o1, Item o2) {
+        public int compare(RadarItem o1, RadarItem o2) {
 
             if (o1.distance == o2.distance)
                 return 0;
@@ -207,52 +208,13 @@ public class RadarFragment extends NumberedListFragment {
     }
 
     public class Radar {
-        private ArrayList<Item> item;
+        private ArrayList<RadarItem> item;
 
-        public ArrayList<Item> getRadars() {
+        public ArrayList<RadarItem> getItem() {
             return item;
         }
+        public void setItem(ArrayList<RadarItem> item) { this.item = item; }
 
-    }
-
-    public class Item {
-        public int distance;
-        private String name;
-        private String address;
-        private int speedLimit;
-        private String type;
-        private double lat;
-        private double lng;
-
-        public Item(String name, int speedLimit, String type, double lat,
-                    double lon) {
-            Log.e("", "WOOT");
-            this.name = name;
-            this.speedLimit = speedLimit;
-            this.type = type;
-            this.lat = lat;
-            this.lng = lon;
-        }
-
-        public String getAddress() {
-            return address;
-        }
-
-        public int getSpeedLimit() {
-            return speedLimit;
-        }
-
-        public String getType() {
-            return type;
-        }
-
-        public double getLat() {
-            return lat;
-        }
-
-        public double getLng() {
-            return lng;
-        }
     }
 
 }

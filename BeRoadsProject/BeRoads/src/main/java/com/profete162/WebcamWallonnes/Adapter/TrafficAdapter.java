@@ -9,8 +9,8 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.profete162.WebcamWallonnes.R;
-import com.profete162.WebcamWallonnes.TrafficFragment.Traffic;
 import com.profete162.WebcamWallonnes.Utils.Utils;
+import com.profete162.WebcamWallonnes.models.Traffic;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

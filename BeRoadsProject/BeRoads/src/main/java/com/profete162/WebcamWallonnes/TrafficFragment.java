@@ -17,6 +17,7 @@ import com.profete162.WebcamWallonnes.Adapter.TrafficAdapter;
 import com.profete162.WebcamWallonnes.Utils.NumberedListFragment;
 import com.profete162.WebcamWallonnes.Utils.Utils;
 import com.profete162.WebcamWallonnes.Utils.Web;
+import com.profete162.WebcamWallonnes.models.Traffic;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -232,44 +233,6 @@ public class TrafficFragment extends NumberedListFragment {
             return item;
         }
 
-    }
-
-    public class Traffic {
-        private String source;
-        private String location;
-        private String message;
-        private String category;
-        private long time;
-        private double lat;
-        private double lng;
-
-        public String getLocation() {
-            return location;
-        }
-
-        public long getTime() {
-            return this.time;
-        }
-
-        public String getSource() {
-            return this.source;
-        }
-
-        public String getCategory() {
-            return this.category;
-        }
-
-        public String getMessage() {
-            return this.message;
-        }
-
-        public double getLat() {
-            return this.lat;
-        }
-
-        public double getLon() {
-            return this.lng;
-        }
     }
 
 }

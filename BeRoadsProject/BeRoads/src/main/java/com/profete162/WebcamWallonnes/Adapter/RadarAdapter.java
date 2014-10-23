@@ -8,20 +8,19 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.profete162.WebcamWallonnes.R;
-import com.profete162.WebcamWallonnes.RadarFragment;
-import com.profete162.WebcamWallonnes.TrafficFragment.Traffic;
 import com.profete162.WebcamWallonnes.Utils.Utils;
+import com.profete162.WebcamWallonnes.models.RadarItem;
 
 import java.util.ArrayList;
 
 
-public class RadarAdapter extends ArrayAdapter<RadarFragment.Item>{
+public class RadarAdapter extends ArrayAdapter<RadarItem> {
 
 	private LayoutInflater myLayoutInflater;
-	protected ArrayList<RadarFragment.Item> items;
+	protected ArrayList<RadarItem> items;
 	double currentLat; double currentLon;
 
-	public RadarAdapter(Context context, int textViewResourceId, ArrayList<RadarFragment.Item> list, LayoutInflater layoutInflater, double currentLat, double currentLon) {
+	public RadarAdapter(Context context, int textViewResourceId, ArrayList<RadarItem> list, LayoutInflater layoutInflater, double currentLat, double currentLon) {
 		super(context, textViewResourceId, list);
 		this.myLayoutInflater = layoutInflater;
 		this.items = list;
@@ -41,7 +40,7 @@ public class RadarAdapter extends ArrayAdapter<RadarFragment.Item>{
 			row = myLayoutInflater.inflate(R.layout.row_radar, parent, false);
 		}
 
-        RadarFragment.Item item=items.get(position);
+        RadarItem item=items.get(position);
 
         TextView tLimit = (TextView) row.findViewById(R.id.tLimit);
         tLimit.setText(""+item.getSpeedLimit());
