@@ -11,6 +11,12 @@ import android.util.Log;
 import android.view.Window;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.tests.toolbox.JsonObjectRequest;
+import com.android.volley.tests.toolbox.Volley;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.profete162.WebcamWallonnes.Utils.DataBaseHelper;
 
@@ -29,6 +35,10 @@ import java.sql.Timestamp;
 public class MainActivity extends DrawerActivity {
 
     int db_version = 0;
+
+    private RequestQueue mRequestQueue;
+
+    public static final String DATA_BEROADS_URL = "http://data.beroads.com/v2/IWay/";
 
     private static int getAppVersion(Context context) {
         try {
@@ -85,7 +95,15 @@ public class MainActivity extends DrawerActivity {
             }
         }
 
+        mRequestQueue = Volley.newRequestQueue(this);
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mRequestQueue != null) {
+            mRequestQueue.cancelAll(this);
+        }
     }
 
     public static String getRegistrationId(Context context) {
@@ -126,56 +144,52 @@ public class MainActivity extends DrawerActivity {
      * application's shared preferences.
      */
     private void registerBackground() {
-        new AsyncTask<Void, Void, String>() {
-            @Override
-            protected String doInBackground(Void... params) {
-                String msg = "";
-                try {
-                    if (gcm == null) {
-                        gcm = GoogleCloudMessaging.getInstance(MainActivity.this);
-                    }
-                    regid = gcm.register(SENDER_ID);
+        String msg = "";
+        try {
+            if (gcm == null) {
+                gcm = GoogleCloudMessaging.getInstance(MainActivity.this);
+            }
 
-                    setRegistrationId(MainActivity.this, regid);
+            regid = gcm.register(SENDER_ID);
 
-                    String lat = "12.3";
-                    String lng = "45.6";
-                    if (loc != null) {
-                        lat = "" + loc.getLatitude();
-                        lng = "" + loc.getLongitude();
-                    }
-                    JSONObject jsonObj = new JSONObject();
-                    jsonObj.put("registration_id", regid);
-                    jsonObj.put("language", "fr");
-                    jsonObj.put("area", 30);
-                    JSONObject coords = new JSONObject();
-                    coords.put("lat", lat);
-                    coords.put("lng", lng);
-                    jsonObj.put("coords", coords);
+            setRegistrationId(MainActivity.this, regid);
 
-                    HttpPost httpPost = new HttpPost("http://dashboard.beroads.com/gcm");
-                    StringEntity entity = new StringEntity(jsonObj.toString(), HTTP.UTF_8);
-                    entity.setContentType("application/json");
-                    httpPost.setEntity(entity);
-                    HttpClient client = new DefaultHttpClient();
-                    HttpResponse response = client.execute(httpPost);
-                    HttpEntity entity2 = response.getEntity();
-                    String responseString = EntityUtils.toString(entity2, "UTF-8");
-                    Log.d("", "+++" + responseString);
-                    // Web.makeRequest("http://dashboard.beroads.com/gcm", regid, "fr", "30", lat, lng);
-                } catch (Exception e) {
-                    e.printStackTrace();
+            String lat = "12.3";
+            String lng = "45.6";
+
+            if (loc != null) {
+                lat = "" + loc.getLatitude();
+                lng = "" + loc.getLongitude();
+            }
+
+            JSONObject jsonObj = new JSONObject();
+            jsonObj.put("registration_id", regid);
+            jsonObj.put("language", "fr");
+            jsonObj.put("area", 30);
+            JSONObject coords = new JSONObject();
+            coords.put("lat", lat);
+            coords.put("lng", lng);
+            jsonObj.put("coords", coords);
+
+            JsonObjectRequest request = new JsonObjectRequest(Request.Method.POST, "http://dashboard.beroads.com/gcm", jsonObj, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    Log.d("", "+++" + response.toString());
                 }
-                return regid;
-            }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.e("",error.toString());
+                }
+            });
 
+            request.setTag(this);
 
-            @Override
-            protected void onPostExecute(final String id) {
+            mRequestQueue.add(request);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-            }
-
-        }.execute(null, null, null);
     }
 
     /**
@@ -198,5 +212,9 @@ public class MainActivity extends DrawerActivity {
                 new Timestamp(expirationTime));
         editor.putLong(PROPERTY_ON_SERVER_EXPIRATION_TIME, expirationTime);
         editor.commit();
+    }
+
+    public RequestQueue getRequestQueue() {
+        return mRequestQueue;
     }
 }

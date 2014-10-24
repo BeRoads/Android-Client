@@ -12,15 +12,16 @@ import com.profete162.WebcamWallonnes.Utils.Utils;
 import com.profete162.WebcamWallonnes.models.RadarItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class RadarAdapter extends ArrayAdapter<RadarItem> {
 
 	private LayoutInflater myLayoutInflater;
-	protected ArrayList<RadarItem> items;
+	protected List<RadarItem> items;
 	double currentLat; double currentLon;
 
-	public RadarAdapter(Context context, int textViewResourceId, ArrayList<RadarItem> list, LayoutInflater layoutInflater, double currentLat, double currentLon) {
+	public RadarAdapter(Context context, int textViewResourceId, List<RadarItem> list, LayoutInflater layoutInflater, double currentLat, double currentLon) {
 		super(context, textViewResourceId, list);
 		this.myLayoutInflater = layoutInflater;
 		this.items = list;

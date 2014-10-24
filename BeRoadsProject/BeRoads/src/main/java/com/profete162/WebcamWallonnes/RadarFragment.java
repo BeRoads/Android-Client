@@ -11,7 +11,11 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.tests.toolbox.GsonRequest;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.profete162.WebcamWallonnes.Adapter.RadarAdapter;
 import com.profete162.WebcamWallonnes.Utils.NumberedListFragment;
 import com.profete162.WebcamWallonnes.Utils.Utils;
@@ -25,12 +29,13 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 public class RadarFragment extends NumberedListFragment {
 
-    public static String FILENAME = "radar.json";
-    AsyncTask<String, Void, ApiResponse> task;
     private Location location;
+    private GsonRequest<List<RadarItem>> gsonRequest;
+    private MainActivity activity;
 
     public void updateToLoc(Location location) {
     }
@@ -39,72 +44,34 @@ public class RadarFragment extends NumberedListFragment {
         POSITION = 2;
         super.onActivityCreated(savedInstanceState);
         this.getListView().setDivider(null);
-        task = new APIRequest();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                displayDatafromSd();
-            }
-        }).start();
-
+        activity = (MainActivity) getActivity();
+        this.reloadRadars();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        location = ((DrawerActivity) this.getActivity()).loc;
-    }
-
-    public void displayDatafromSd() {
-        Activity a = RadarFragment.this.getActivity();
-        // Log.i("", "Activity2: " +
-        // PositionFragment.this.getSherlockActivity());
-        try {
-            File f = new File(a.getDir("CACHE", Context.MODE_PRIVATE),
-                    FILENAME);
-            // Log.i("", "File: " + f);
-            if (f.exists()) {
-                BufferedReader is = Utils.getFromFile(f);
-                Gson gson = new Gson();
-                if (is != null) {
-                    final ApiResponse rep = gson.fromJson(is, ApiResponse.class);
-                    Log.i("", "*** REP " + rep);
-                    Collections.sort(rep.Radar.item, new CustomComparator());
-                    if (rep != null)
-                        RadarFragment.this.getActivity().runOnUiThread(
-                                new Runnable() {
-                                    public void run() {
-                                        updateUI(rep);
-                                    }
-                                });
-                    else
-                        Log.i("", "*** File - NULL ");
-                }
-            }
-        } catch (Exception f) {
-            f.printStackTrace();
-        }
-        this.getListView().setSelector(R.drawable.listselector_yellow);
-        task.execute("CVE");
+        activity = ((MainActivity) this.getActivity());
+        location = activity.loc;
     }
 
     private void displayError() {
     }
 
-    public void updateUI(final ApiResponse result) {
+    public void updateUI(final List<RadarItem> result) {
         try {
-            Log.i("", "Result: " + result.Radar.item);
+            Log.i("", "Result size: " + result.size());
             Log.i("", "Inflater: " + getActivity().getLayoutInflater());
             Log.i("", "pos: " + location);
 
             if (this.getListAdapter() == null)
                 this.setListAdapter(new RadarAdapter(getActivity(),
-                        R.layout.row_radar, result.Radar.item, getActivity()
+                        R.layout.row_radar, result, getActivity()
                         .getLayoutInflater(), location.getLatitude(), location.getLongitude()));
             else{
                 RadarAdapter a = (RadarAdapter) this.getListAdapter();
                 a.clear();
-                for (RadarItem aRadar:result.Radar.getItem())
+                for (RadarItem aRadar:result)
                     a.add(aRadar);
 
                 a.notifyDataSetChanged();
@@ -116,7 +83,7 @@ public class RadarFragment extends NumberedListFragment {
                 @Override
                 public void onItemClick(AdapterView<?> adapter, View view, int position, long arg) {
                     Log.i("FragmentComplexList", "Item clicked: " + arg);
-                    RadarItem i = result.Radar.item.get((int) arg);
+                    RadarItem i = result.get((int) arg);
                     try {
                         Uri streetViewUri = Uri.parse(
                                 "google.streetview:cbll=" + i.getLat() + "," + i.getLng() + "&cbp=1,90,,0,1.0&mz=20");
@@ -137,7 +104,9 @@ public class RadarFragment extends NumberedListFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        task.cancel(true);
+        if (gsonRequest != null) {
+            gsonRequest.cancel();
+        }
     }
 
     public class CustomComparator implements Comparator<RadarItem> {
@@ -152,69 +121,32 @@ public class RadarFragment extends NumberedListFragment {
         }
     }
 
-    private class APIRequest extends AsyncTask<String, Void, ApiResponse> {
-
-        @Override
-        protected ApiResponse doInBackground(String... params) {
-
-            if (location != null) {
-                String url = "http://data.beroads.com/IWay/Radar.json?format=json&from="
-                        + location.getLatitude()
-                        + ","
-                        + location.getLongitude() + "&area=40";
-                System.out.println("*** URL:" + url);
-                try {
-
-                    InputStream content = Web.DownloadJsonFromUrlAndCacheToSd(url,
-                            FILENAME, RadarFragment.this.getActivity());
-
-                    return new Gson().fromJson(new InputStreamReader(content), ApiResponse.class);
-
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-            } else
-                System.out.println("*** LOC:" + location);
-            return null;
+    private void reloadRadars() {
+        String url;
+        if (location != null) {
+            url = MainActivity.DATA_BEROADS_URL+"Radar.json?format=json&from="
+                    + location.getLatitude()
+                    + ","
+                    + location.getLongitude() + "&area=40";
+        } else {
+            url = MainActivity.DATA_BEROADS_URL + "Radar.json?format=json";
         }
 
-        @Override
-        protected void onPostExecute(ApiResponse result) {
-            if (result != null)
-                updateUI(result);
-
-            try {
-                RadarFragment.this.getActivity().setProgressBarIndeterminateVisibility(false);
-            } catch (Exception e) {
+        gsonRequest = new GsonRequest<List<RadarItem>>(url,new TypeToken<List<RadarItem>>(){}.getType(),null,new Response.Listener<List<RadarItem>>() {
+            @Override
+            public void onResponse(List<RadarItem> response) {
+                updateUI(response);
 
             }
-            //TODO Display error if null
-
-        }
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-        }
-    }
-
-    public class ApiResponse {
-        Radar Radar;
-    }
-
-    public class Radar {
-        private ArrayList<RadarItem> item;
-
-        public ArrayList<RadarItem> getItem() {
-            return item;
-        }
-        public void setItem(ArrayList<RadarItem> item) { this.item = item; }
-
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("",error.toString());
+            }
+        });
+        gsonRequest.setTag(activity);
+        activity.setProgressBarIndeterminateVisibility(false);
+        activity.getRequestQueue().add(gsonRequest);
     }
 
 }

@@ -15,15 +15,16 @@ import com.profete162.WebcamWallonnes.models.Traffic;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 
 public class TrafficAdapter extends ArrayAdapter<Traffic>{
 
 	private LayoutInflater myLayoutInflater;
-	protected ArrayList<Traffic> items;
+	protected List<Traffic> items;
 	Location currentLoc;
 	
-	public TrafficAdapter(Context context, int textViewResourceId,ArrayList<Traffic> list,LayoutInflater layoutInflater,Location loc) {
+	public TrafficAdapter(Context context, int textViewResourceId,List<Traffic> list,LayoutInflater layoutInflater,Location loc) {
 		super(context, textViewResourceId, list);
 		this.myLayoutInflater = layoutInflater;
 		this.items = list;

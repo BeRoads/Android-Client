@@ -7,12 +7,17 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.tests.toolbox.GsonRequest;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.profete162.WebcamWallonnes.Adapter.TrafficAdapter;
 import com.profete162.WebcamWallonnes.Utils.NumberedListFragment;
 import com.profete162.WebcamWallonnes.Utils.Utils;
@@ -24,18 +29,18 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
 
 public class TrafficFragment extends NumberedListFragment {
 
-    public static String FILENAME = "traffic.json";
-    AsyncTask<String, Void, ApiResponse> task = null;
     private Location location;
-    ApiResponse rep = null;
+    private MainActivity activity;
+    private GsonRequest<List<Traffic>> gsonRequest;
 
     public void updateToLoc(Location newLocation) {
         try {
             this.location = newLocation;
-            new APIRequest().execute("");
+            this.reloadTraffic();
             getActivity().setProgressBarIndeterminateVisibility(true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -65,81 +70,34 @@ public class TrafficFragment extends NumberedListFragment {
 
         super.onActivityCreated(savedInstanceState);
 
-        if (PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getBoolean("tuto", true) && ((DrawerActivity) this.getActivity()).mDrawerLayout != null)
+        if (PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getBoolean("tuto", true) && ((DrawerActivity) this.getActivity()).mDrawerLayout != null) {
             this.getView().findViewById(R.id.tuto).setVisibility(View.VISIBLE);
+        }
 
         this.getListView().setDivider(null);
-        task = new APIRequest();
 
-        location = ((DrawerActivity) getActivity()).loc;
+        activity = ((MainActivity) getActivity());
+        location = activity.loc;
 
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                displayDatafromSd();
-            }
-        }).start();
-
-    }
-
-    public void displayDatafromSd() {
-        rep = null;
-        Activity a = TrafficFragment.this.getActivity();
-        try {
-            File f = new File(a.getDir("CACHE", Context.MODE_PRIVATE),
-                    FILENAME);
-
-            if (f.exists()) {
-                BufferedReader is = Utils.getFromFile(f);
-                Gson gson = new Gson();
-                if (is != null) {
-                    rep = gson.fromJson(is, ApiResponse.class);
-                }
-            }
-
-            if (rep != null)
-                TrafficFragment.this.getActivity().runOnUiThread(
-                        new Runnable() {
-                            public void run() {
-                                updateUI(rep, false);
-                            }
-                        });
-
-            TrafficFragment.this.getActivity().runOnUiThread(
-                    new Runnable() {
-                        public void run() {
-                            try {
-                                task.execute("CVE");
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    });
-
-
-        } catch (Exception e) {
-            getActivity().setProgressBarIndeterminateVisibility(false);
-            e.printStackTrace();
-        }
+        reloadTraffic();
 
     }
 
     private void displayError() {
     }
 
-    public void updateUI(ApiResponse result, boolean hideProgress) {
+    public void updateUI(List<Traffic> result, boolean hideProgress) {
         if (result != null)
             try {
                 if (this.getListAdapter() == null)
                     this.setListAdapter(new TrafficAdapter(getActivity(),
-                            R.layout.row_traffic, result.TrafficEvent.getTraffics(), getActivity()
+                            R.layout.row_traffic, result, getActivity()
                             .getLayoutInflater(), location));
 
                 else {
                     TrafficAdapter a = (TrafficAdapter) this.getListAdapter();
                     a.clear();
-                    for (Traffic aTraffic : result.TrafficEvent.getTraffics())
+                    for (Traffic aTraffic : result)
                         a.add(aTraffic);
                     a.notifyDataSetChanged();
                 }
@@ -160,8 +118,10 @@ public class TrafficFragment extends NumberedListFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (task != null)
-            task.cancel(true);
+
+        if (gsonRequest != null) {
+            gsonRequest.cancel();
+        }
     }
 
     @Override
@@ -169,70 +129,32 @@ public class TrafficFragment extends NumberedListFragment {
         super.onResume();
     }
 
+    public void reloadTraffic(){
+        String url;
+        if (location != null) {
+            url = MainActivity.DATA_BEROADS_URL+"TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json&from="
+                    + location.getLatitude()
+                    + ","
+                    + location.getLongitude();
+        } else {
+            url = MainActivity.DATA_BEROADS_URL+"TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json";
+        }
 
-    public class APIRequest extends AsyncTask<String, Void, ApiResponse> {
+        Log.d("","*** URL:" + url);
 
-        @Override
-        protected ApiResponse doInBackground(String... params) {
-
-            try {
-                String url;
-                if (location != null)
-                    url = "http://data.beroads.com/IWay/TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json&from="
-                            + location.getLatitude()
-                            + ","
-                            + location.getLongitude();
-                else
-                    url = "http://data.beroads.com/IWay/TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json";
-
-                System.out.println("*** URL:" + url);
-                try {
-                    InputStream content = Web.DownloadJsonFromUrlAndCacheToSd(url,
-                            FILENAME, TrafficFragment.this.getActivity());
-                    return new Gson().fromJson(new InputStreamReader(content), ApiResponse.class);
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-            } catch (
-                    Exception e
-                    )
-
-            {
-                e.printStackTrace();
+        gsonRequest = new GsonRequest<List<Traffic>>(url,new TypeToken<List<Traffic>>(){}.getType(),null,new Response.Listener<List<Traffic>>() {
+            @Override
+            public void onResponse(List<Traffic> response) {
+                updateUI(response, true);
             }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(ApiResponse result) {
-
-            updateUI(result, true);
-            //TODO Display error if null
-
-        }
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-        }
-    }
-
-    public class ApiResponse {
-        TrafficEvent TrafficEvent;
-    }
-
-    public class TrafficEvent {
-        private ArrayList<Traffic> item;
-
-        public ArrayList<Traffic> getTraffics() {
-            return item;
-        }
-
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("",error.toString());
+            }
+        });
+        gsonRequest.setTag(activity);
+        activity.getRequestQueue().add(gsonRequest);
     }
 
 }

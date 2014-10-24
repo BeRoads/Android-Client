@@ -15,6 +15,9 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.tests.toolbox.GsonRequest;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -23,6 +26,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.profete162.WebcamWallonnes.Adapter.PopupTrafficAdapter;
 import com.profete162.WebcamWallonnes.Utils.DataBaseHelper;
 import com.profete162.WebcamWallonnes.Utils.Utils;
@@ -37,24 +41,30 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
-public class ZeMapFragment extends SupportMapFragment {
+public class ZeMapFragment extends SupportMapFragment implements GoogleMap.OnInfoWindowClickListener {
 
     Location location;
     GoogleMap mMap;
     static int ZOOM = 9;
     SharedPreferences preferences;
+    private GsonRequest<List<Traffic>> trafficsGsonRequest;
+    private GsonRequest<List<RadarItem>> radarsGsonRequest;
+    private MainActivity activity;
 
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
         setHasOptionsMenu(true);
 
+        activity = ((MainActivity) this.getActivity());
+
         // mMapFragment = MapFragment.newInstance();
         mMap = this.getMap();
         if (mMap != null) {
 
-            location = ((DrawerActivity) this.getActivity()).loc;
+            location = activity.loc;
 
             CamRequest camTask = new CamRequest();
             camTask.execute("CVE");
@@ -68,7 +78,7 @@ public class ZeMapFragment extends SupportMapFragment {
                             preferences.getFloat("lng", 4)), preferences
                     .getFloat("zoom", ZOOM)));
 
-
+            mMap.setOnInfoWindowClickListener(this);
         }else
             getParentFragment().getActivity().setProgressBarIndeterminateVisibility(false);
 
@@ -129,46 +139,25 @@ public class ZeMapFragment extends SupportMapFragment {
 
     }
 
-    public class APITrafficRequest extends AsyncTask<String, Void, TrafficFragment.ApiResponse> {
 
-        @Override
-        protected TrafficFragment.ApiResponse doInBackground(String... params) {
-
-            if (location != null) {
-
-                //int randomNum = 0;
-                //Random ran = new Random();
-                //location.setLongitude(ran.nextDouble()*4.3+2.37);
-                //location.setLatitude(ran.nextDouble()*2+49.5);
-
-
-                try {
-                    String url = "http://data.beroads.com/IWay/TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json&from="
-                            + location.getLatitude()
-                            + ","
-                            + location.getLongitude()
-                            + "&max=30";
-
-                    InputStream content = Web.DownloadJsonFromUrlAndCacheToSd(url,
-                            TrafficFragment.FILENAME, ZeMapFragment.this.getParentFragment().getActivity());
-
-                    return new Gson().fromJson(new InputStreamReader(content), TrafficFragment.ApiResponse.class);
-
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-            }
-            return null;
+    public void reloadTraffic(){
+        String url;
+        if (location != null) {
+            url = MainActivity.DATA_BEROADS_URL+"TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json&from="
+                    + location.getLatitude()
+                    + ","
+                    + location.getLongitude()
+                    +"&max=30";
+        } else {
+            url = MainActivity.DATA_BEROADS_URL+"TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json&max=30";
         }
 
-        @Override
-        protected void onPostExecute(TrafficFragment.ApiResponse result) {
-            if (result != null) {
+        Log.d("","*** URL:" + url);
 
-
-                for (Traffic aTraffic : result.TrafficEvent.getTraffics())
+        trafficsGsonRequest = new GsonRequest<List<Traffic>>(url,new TypeToken<List<Traffic>>(){}.getType(),null,new Response.Listener<List<Traffic>>() {
+            @Override
+            public void onResponse(List<Traffic> response) {
+                for (Traffic aTraffic : response) {
                     mMap.addMarker(new MarkerOptions()
                             .position(new LatLng(aTraffic.getLat(), aTraffic.getLon()))
                             .title("T;" + ";" + aTraffic.getCategory())
@@ -176,143 +165,106 @@ public class ZeMapFragment extends SupportMapFragment {
                             .snippet(aTraffic.getMessage())
                             .icon(BitmapDescriptorFactory
                                     .fromResource(R.drawable.ic_m_traffic)));
+                }
             }
-
-
-            APIRadarRequest radarTask = new APIRadarRequest();
-            radarTask.execute("CVE");
-
-            //TODO Display error if null
-        }
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-        }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("",error.toString());
+            }
+        });
+        trafficsGsonRequest.setTag(activity);
+        activity.getRequestQueue().add(trafficsGsonRequest);
     }
 
-    public class APIRadarRequest extends AsyncTask<String, Void, RadarFragment.ApiResponse> {
-
-        @Override
-        protected RadarFragment.ApiResponse doInBackground(String... params) {
-
-            if (location != null) {
-                String url = "http://data.beroads.com/IWay/Radar.json?format=json&from="
-                        + location.getLatitude()
-                        + ","
-                        + location.getLongitude() + "&max=30";
-
-                try {
-
-                    InputStream content = Web.DownloadJsonFromUrlAndCacheToSd(url,
-                            RadarFragment.FILENAME, ZeMapFragment.this.getParentFragment().getActivity());
-                    return new Gson().fromJson(new InputStreamReader(content), RadarFragment.ApiResponse.class);
-
-
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-
-            }
-            return null;
+    private void reloadRadars() {
+        String url;
+        if (location != null) {
+            url = MainActivity.DATA_BEROADS_URL+"Radar.json?format=json&from="
+                    + location.getLatitude()
+                    + ","
+                    + location.getLongitude()
+                    + "&max=30";
+        } else {
+            url = MainActivity.DATA_BEROADS_URL + "Radar.json?format=json&max=30";
         }
 
-        @Override
-        protected void onPostExecute(RadarFragment.ApiResponse result) {
-            try {
-                if (result != null) {
-                    for (RadarItem aRadar : result.Radar.getItem())
-                        mMap.addMarker(new MarkerOptions()
-                                .position(new LatLng(aRadar.getLat(), aRadar.getLng()))
-                                .title("R;" + aRadar.getType() + ";" + aRadar.getAddress())
-                                .anchor(0.5f, 1.0f)
-                                .snippet("" + aRadar.getSpeedLimit() + ";" + aRadar.getLat() + "," + aRadar.getLng())
-                                .icon(BitmapDescriptorFactory
-                                        .fromResource(R.drawable.ic_m_radar)));
+        radarsGsonRequest = new GsonRequest<List<RadarItem>>(url, new TypeToken<List<RadarItem>>(){}.getType(),null,new Response.Listener<List<RadarItem>>() {
+            @Override
+            public void onResponse(List<RadarItem> response) {
+                for (RadarItem aRadar : response) {
+                    mMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(aRadar.getLat(), aRadar.getLng()))
+                            .title("R;" + aRadar.getType() + ";" + aRadar.getAddress())
+                            .anchor(0.5f, 1.0f)
+                            .snippet("" + aRadar.getSpeedLimit() + ";" + aRadar.getLat() + "," + aRadar.getLng())
+                            .icon(BitmapDescriptorFactory
+                                    .fromResource(R.drawable.ic_m_radar)));
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e("",error.toString());
+            }
+        });
+        radarsGsonRequest.setTag(activity);
+        activity.setProgressBarIndeterminateVisibility(false);;
+        activity.getRequestQueue().add(radarsGsonRequest);
+    }
 
-            try {
-                getParentFragment().getActivity().setProgressBarIndeterminateVisibility(false);
+    @Override
+    public void onInfoWindowClick(Marker marker) {
 
-                mMap.moveCamera(CameraUpdateFactory
-                        .newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), ZOOM));
-
-
-                mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+        final String[] text = marker.getTitle().split(";");
+        final String[] snippet = marker.getSnippet().split(";");
+        switch (text[0].charAt(0)) {
+            case 'W':
+                final Dialog dialog = new Dialog(ZeMapFragment.this.getParentFragment()
+                        .getActivity(), R.style.full_screen_dialog) {
                     @Override
-                    public void onInfoWindowClick(Marker marker) {
+                    protected void onCreate(Bundle savedInstanceState) {
+                        super.onCreate(savedInstanceState);
 
-                        final String[] text = marker.getTitle().split(";");
-                        final String[] snippet = marker.getSnippet().split(";");
-                        switch (text[0].charAt(0)) {
-                            case 'W':
-                                final Dialog dialog = new Dialog(ZeMapFragment.this.getParentFragment()
-                                        .getActivity(), R.style.full_screen_dialog) {
-                                    @Override
-                                    protected void onCreate(Bundle savedInstanceState) {
-                                        super.onCreate(savedInstanceState);
+                        ImageView view = new ImageView(ZeMapFragment.this.getParentFragment()
+                                .getActivity());
+                        //UrlImageViewHelper.setUrlDrawable(view, text[1], null, 20 * DateUtils.MINUTE_IN_MILLIS);
+                        Picasso.with(getContext()).load( text[1]).into(view);
 
-                                        ImageView view = new ImageView(ZeMapFragment.this.getParentFragment()
-                                                .getActivity());
-                                        //UrlImageViewHelper.setUrlDrawable(view, text[1], null, 20 * DateUtils.MINUTE_IN_MILLIS);
-                                        Picasso.with(getContext()).load( text[1]).into(view);
+                        view.setLayoutParams(new ViewGroup.LayoutParams(
+                                ViewGroup.LayoutParams.MATCH_PARENT,
+                                ViewGroup.LayoutParams.MATCH_PARENT));
+                        // view.setBackgroundResource(R.drawable.search_bg_shadow);
+                        final Dialog d = this;
+                        view.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View arg0) {
+                                d.dismiss();
+                            }
+                        });
 
-                                        view.setLayoutParams(new ViewGroup.LayoutParams(
-                                                ViewGroup.LayoutParams.MATCH_PARENT,
-                                                ViewGroup.LayoutParams.MATCH_PARENT));
-                                        // view.setBackgroundResource(R.drawable.search_bg_shadow);
-                                        final Dialog d = this;
-                                        view.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View arg0) {
-                                                d.dismiss();
-                                            }
-                                        });
-
-                                        setContentView(view);
-                                        getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
-                                                WindowManager.LayoutParams.MATCH_PARENT);
-                                    }
-                                };
-                                dialog.setTitle(marker.getTitle());
-                                dialog.show();
-                                break;
-                            case 'R':
-                                try {
-                                    Uri streetViewUri = Uri.parse(
-                                            "google.streetview:cbll=" + snippet[1] + "&cbp=1,90,,0,1.0&mz=20");
-                                    Intent streetViewIntent = new Intent(Intent.ACTION_VIEW, streetViewUri);
-                                    startActivity(streetViewIntent);
-                                } catch (Exception e) {
-                                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.street")));
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                        marker.hideInfoWindow();
+                        setContentView(view);
+                        getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
+                                WindowManager.LayoutParams.MATCH_PARENT);
                     }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-
+                };
+                dialog.setTitle(marker.getTitle());
+                dialog.show();
+                break;
+            case 'R':
+                try {
+                    Uri streetViewUri = Uri.parse(
+                            "google.streetview:cbll=" + snippet[1] + "&cbp=1,90,,0,1.0&mz=20");
+                    Intent streetViewIntent = new Intent(Intent.ACTION_VIEW, streetViewUri);
+                    startActivity(streetViewIntent);
+                } catch (Exception e) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.street")));
+                }
+                break;
+            default:
+                break;
         }
-
-        @Override
-        protected void onPreExecute() {
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-        }
+        marker.hideInfoWindow();
     }
 
     public class CamRequest extends AsyncTask<String, Void, ArrayList<Webcam>> {
@@ -355,9 +307,8 @@ public class ZeMapFragment extends SupportMapFragment {
         @Override
         protected void onPostExecute(ArrayList<Webcam> result) {
 
-            APITrafficRequest trafficTask = new APITrafficRequest();
-            trafficTask.execute("CVE");
-            int total = 0;
+            reloadTraffic();
+            reloadRadars();
 
             if (result != null) {
                 for (Webcam item : result) {
@@ -368,9 +319,6 @@ public class ZeMapFragment extends SupportMapFragment {
                             .snippet("")
                             .icon(BitmapDescriptorFactory
                                     .fromResource(R.drawable.ic_m_webcam)));
-                    total++;
-                    //if (total >= 30)
-                     //   break;
                 }
             }
 
