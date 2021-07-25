@@ -6,24 +6,31 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.support.v4.app.NotificationCompat;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
+
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
 
 /**
  * Created by 201601 on 27/06/13.
  */
-public class MyBroadcastReceiver  extends BroadcastReceiver {
+public class MyBroadcastReceiver  extends FirebaseMessagingService {
     static final String TAG = "GCMDemo";
     public static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
     NotificationCompat.Builder builder;
     Context ctx;
+
     @Override
-    public void onReceive(Context context, Intent intent) {
-        GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
+    public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
+        Intent intent = remoteMessage.toIntent();
+        FirebaseMessaging fcm = FirebaseMessaging.getInstance();
+                /*
         ctx = context;
-        String messageType = gcm.getMessageType(intent);
+        String messageType = remoteMessage.getMessageType();
         if (GoogleCloudMessaging.MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
             sendNotification("Send error: " + intent.getExtras().toString());
         } else if (GoogleCloudMessaging.MESSAGE_TYPE_DELETED.equals(messageType)) {
@@ -33,6 +40,13 @@ public class MyBroadcastReceiver  extends BroadcastReceiver {
             sendNotification("Received: " + intent.getExtras().toString());
         }
         setResultCode(Activity.RESULT_OK);
+         */
+        sendNotification("Received: " + intent.getExtras().toString());
+    }
+
+    @Override
+    public void onNewToken(@NonNull String s) {
+        super.onNewToken(s);
     }
 
     // Put the GCM message into a notification and post it.
@@ -46,7 +60,7 @@ public class MyBroadcastReceiver  extends BroadcastReceiver {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(ctx)
                         .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle("GCM Notification")
+                        .setContentTitle("FCM Notification")
                         .setStyle(new NotificationCompat.BigTextStyle()
                                 .bigText(msg))
                         .setContentText(msg);

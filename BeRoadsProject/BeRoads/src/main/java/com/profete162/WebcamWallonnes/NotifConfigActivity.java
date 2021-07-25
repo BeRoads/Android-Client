@@ -7,9 +7,12 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -28,7 +31,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class NotifConfigActivity extends Activity implements GoogleMap.OnMapClickListener {
+public class NotifConfigActivity extends Activity implements GoogleMap.OnMapClickListener, OnMapReadyCallback {
 
     GoogleMap mMap;
     ArrayList<LatLng> points = new ArrayList<LatLng>();
@@ -39,21 +42,11 @@ public class NotifConfigActivity extends Activity implements GoogleMap.OnMapClic
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_notifconfig);
-        mMap = ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMap();
-        mMap.setOnMapClickListener(this);
-        regid = MainActivity.getRegistrationId(this);
-
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-
-        if (mMap != null)
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(preferences.getFloat("lat", 50.5f),
-                            preferences.getFloat("lng", 4)), preferences
-                    .getFloat("zoom", ZeMapFragment.ZOOM)));
+        ((MapFragment) getFragmentManager().findFragmentById(R.id.map)).getMapAsync(this);
     }
 
     @Override
-    public void onMapClick(LatLng latLng) {
+    public void onMapClick(@NonNull LatLng latLng) {
 
         drawCircle(latLng);
         points.add(latLng);
@@ -101,7 +94,7 @@ public class NotifConfigActivity extends Activity implements GoogleMap.OnMapClic
                     jsonObj.put("points",array);
 
 
-                    HttpPost httpPost = new HttpPost("http://dashboard.beroads.com/gcm");
+                    HttpPost httpPost = new HttpPost("https://dashboard.beroads.com/gcm");
                     StringEntity entity = new StringEntity(jsonObj.toString(), HTTP.UTF_8);
                     entity.setContentType("application/json");
                     httpPost.setEntity(entity);
@@ -115,7 +108,7 @@ public class NotifConfigActivity extends Activity implements GoogleMap.OnMapClic
                     e.printStackTrace();
                 }
 
-                Web.retrieveStream("http://beroads.com/test_notif.php?reg_id=" + regid, NotifConfigActivity.this);
+                Web.retrieveStream("https://beroads.com/test_notif.php?reg_id=" + regid, NotifConfigActivity.this);
             }
         }).start();
     }
@@ -142,4 +135,18 @@ public class NotifConfigActivity extends Activity implements GoogleMap.OnMapClic
 
     }
 
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        mMap.setOnMapClickListener(this);
+        regid = MainActivity.getRegistrationId(this);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        if (mMap != null) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                    new LatLng(preferences.getFloat("lat", 50.5f),
+                            preferences.getFloat("lng", 4)), preferences
+                            .getFloat("zoom", ZeMapFragment.ZOOM)));
+        }
+    }
 }

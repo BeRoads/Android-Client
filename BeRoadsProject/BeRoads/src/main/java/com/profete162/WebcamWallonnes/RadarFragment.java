@@ -122,7 +122,7 @@ public class RadarFragment extends NumberedListFragment {
                         Intent streetViewIntent = new Intent(Intent.ACTION_VIEW, streetViewUri);
                         startActivity(streetViewIntent);
                     } catch (Exception e) {
-                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=com.google.android.street")));
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=com.google.android.street")));
                     }
                 }
             });
@@ -157,7 +157,7 @@ public class RadarFragment extends NumberedListFragment {
         protected ApiResponse doInBackground(String... params) {
 
             if (location != null) {
-                String url = "http://data.beroads.com/IWay/Radar.json?format=json&from="
+                String url = "https://data.beroads.com/IWay/Radar.json?format=json&from="
                         + location.getLatitude()
                         + ","
                         + location.getLongitude() + "&area=40";

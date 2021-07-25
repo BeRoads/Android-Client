@@ -1,5 +1,6 @@
 package com.profete162.WebcamWallonnes;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -14,12 +15,15 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.widget.DrawerLayout;
+
+import androidx.core.app.ActivityCompat;
+import androidx.legacy.app.ActionBarDrawerToggle;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.drawerlayout.widget.DrawerLayout;
+
 import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Menu;
@@ -30,7 +34,8 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.profete162.WebcamWallonnes.Adapter.MenuAdapter;
 import com.profete162.WebcamWallonnes.Utils.GPS;
 import com.profete162.WebcamWallonnes.Utils.NumberedFragment;
@@ -41,7 +46,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class DrawerActivity extends FragmentActivity {
 
     public static final String TAG = "WazaBe";
-    int count=0;
+    int count = 0;
     public static final String EXTRA_MESSAGE = "message";
     public static final String PROPERTY_REG_ID = "registration_id";
     public static final String PROPERTY_APP_VERSION = "appVersion";
@@ -62,7 +67,7 @@ public class DrawerActivity extends FragmentActivity {
      * Substitute you own sender ID here.
      */
     String SENDER_ID = "570622304067";
-    GoogleCloudMessaging gcm;
+    FirebaseMessaging fcm;
     AtomicInteger msgId = new AtomicInteger();
     SharedPreferences prefs;
     String regid;
@@ -106,10 +111,10 @@ public class DrawerActivity extends FragmentActivity {
                 /** Called when a drawer has settled in a completely open state. */
                 public void onDrawerOpened(View drawerView) {
                     count++;
-                    if(count>5){
+                    if (count > 5) {
                         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.youtube.com/watch?v=dQw4w9WgXcQ"));
                         startActivity(browserIntent);
-                        count=0;
+                        count = 0;
                     }
                     getActionBar().setTitle(getString(R.string.app_name));
                     getActionBar().setIcon(R.drawable.ic_launcher);
@@ -147,7 +152,7 @@ public class DrawerActivity extends FragmentActivity {
 
                 }
             });
-           // mDrawerList.addFooterView(b);
+            // mDrawerList.addFooterView(b);
             mDrawerList.setAdapter(new MenuAdapter(this,
                     R.layout.row_menu, mMenuTitles));
 
@@ -204,9 +209,43 @@ public class DrawerActivity extends FragmentActivity {
                 }
             };
 
-// Register the listener with the Location Manager to receive location updates
+            // Register the listener with the Location Manager to receive location updates
 
             try {
+                if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    // TODO: Consider calling
+                    //    ActivityCompat#requestPermissions
+                    // here to request the missing permissions, and then overriding
+                    //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                    //                                          int[] grantResults)
+                    // to handle the case where the user grants the permission. See the documentation
+                    // for ActivityCompat#requestPermissions for more details.
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                            Manifest.permission.READ_CONTACTS)
+                            || ActivityCompat.shouldShowRequestPermissionRationale(this,
+                            Manifest.permission.WRITE_CONTACTS)) {
+
+                        // Provide an additional rationale to the user if the permission was not granted
+                        // and the user would benefit from additional context for the use of the permission.
+                        // For example, if the request has been denied previously.
+                        Log.i(TAG,
+                                "Displaying contacts permission rationale to provide additional context.");
+
+                        // Display a SnackBar with an explanation and a button to trigger the request.
+                        Snackbar.make(mDrawerLayout, R.string.permission_location_rationale,
+                                Snackbar.LENGTH_INDEFINITE)
+                                .setAction(R.string.ok, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        ActivityCompat.requestPermissions(DrawerActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
+                                    }
+                                })
+                                .show();
+                    } else {
+                        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 0);
+                    }
+                    return;
+                }
                 locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, locationListener);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -239,8 +278,9 @@ public class DrawerActivity extends FragmentActivity {
                     if (f instanceof MyMapFragment) {
                         DrawerActivity.this.mapFragment = (MyMapFragment) f;
                         show = true;
-                    } else
+                    } else {
                         show = false;
+                    }
 
                     Log.e("", "STACK: " + mapFragment);
 

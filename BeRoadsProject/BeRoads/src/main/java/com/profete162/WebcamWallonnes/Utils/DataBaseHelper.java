@@ -31,6 +31,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
         super(context, DB_NAME_WEBCAM, null, 1);
         this.myContext = context;
+        DB_PATH =  myContext.getDatabasePath(DB_NAME_WEBCAM).getAbsolutePath();
     }
 
     /**
@@ -57,7 +58,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public void forceCreateDataBase(Context context) throws IOException {
+    public void forceCreateDataBase() throws IOException {
 
         // try {
         this.getReadableDatabase();
@@ -88,7 +89,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
 
 
         try {
-            String myPathWebcam = DB_PATH + DB_NAME_WEBCAM;
+            String myPathWebcam = DB_PATH;
             checkDBWebcam = SQLiteDatabase.openDatabase(myPathWebcam, null,
                     SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 
@@ -120,7 +121,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
         InputStream myInput = myContext.getAssets().open(name);
 
         // Path to the just created empty db
-        String outFileName = DB_PATH + name;
+        String outFileName = DB_PATH;
 
         // Open the empty db as the output stream
         OutputStream myOutput = new FileOutputStream(outFileName);
@@ -142,8 +143,7 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     public void openDataBase(String name) throws SQLException {
 
         // Open the database
-        String myPath = DB_PATH + name;
-        myDataBase = SQLiteDatabase.openDatabase(myPath, null,
+        myDataBase = SQLiteDatabase.openDatabase(DB_PATH, null,
                 SQLiteDatabase.OPEN_READWRITE
                         | SQLiteDatabase.NO_LOCALIZED_COLLATORS);
 
@@ -162,7 +162,6 @@ public class DataBaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
         // TODO Auto-generated method stub
-
     }
 
     public boolean updateWebcam(long rowId, String title) {

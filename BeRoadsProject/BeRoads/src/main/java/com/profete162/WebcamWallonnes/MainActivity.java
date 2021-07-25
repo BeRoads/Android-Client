@@ -11,7 +11,7 @@ import android.util.Log;
 import android.view.Window;
 import android.widget.Toast;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.profete162.WebcamWallonnes.Utils.DataBaseHelper;
 
 import org.apache.http.HttpEntity;
@@ -53,7 +53,7 @@ public class MainActivity extends DrawerActivity {
         if (regid.length() == 0) {
             registerBackground();
         }
-        gcm = GoogleCloudMessaging.getInstance(this);
+        fcm = FirebaseMessaging.getInstance();
 
         super.onCreate(savedInstanceState);
 
@@ -69,7 +69,7 @@ public class MainActivity extends DrawerActivity {
         if (settings.getInt("db_version", -1) != db_version) {
             try {
 
-                myDbHelper.forceCreateDataBase(this);
+                myDbHelper.createDataBase();
 
                 SharedPreferences.Editor editor = settings.edit();
                 editor.putInt("db_version", db_version);
@@ -79,7 +79,7 @@ public class MainActivity extends DrawerActivity {
                         .show();
             } catch (Exception e) {
                 // TODO Auto-generated catch block
-                e.printStackTrace();
+                Log.e(TAG, "Unable to create database", e);
                 Toast.makeText(this, "Unable to create database",
                         Toast.LENGTH_LONG).show();
             }
@@ -131,10 +131,10 @@ public class MainActivity extends DrawerActivity {
             protected String doInBackground(Void... params) {
                 String msg = "";
                 try {
-                    if (gcm == null) {
-                        gcm = GoogleCloudMessaging.getInstance(MainActivity.this);
+                    if (fcm == null) {
+                        fcm = FirebaseMessaging.getInstance();
                     }
-                    regid = gcm.register(SENDER_ID);
+                    //regid = fcm.register(SENDER_ID);
 
                     setRegistrationId(MainActivity.this, regid);
 
@@ -153,7 +153,7 @@ public class MainActivity extends DrawerActivity {
                     coords.put("lng", lng);
                     jsonObj.put("coords", coords);
 
-                    HttpPost httpPost = new HttpPost("http://dashboard.beroads.com/gcm");
+                    HttpPost httpPost = new HttpPost("https://dashboard.beroads.com/gcm");
                     StringEntity entity = new StringEntity(jsonObj.toString(), HTTP.UTF_8);
                     entity.setContentType("application/json");
                     httpPost.setEntity(entity);

@@ -177,12 +177,12 @@ public class TrafficFragment extends NumberedListFragment {
             try {
                 String url;
                 if (location != null)
-                    url = "http://data.beroads.com/IWay/TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json&from="
+                    url = "https://data.beroads.com/IWay/TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json&from="
                             + location.getLatitude()
                             + ","
                             + location.getLongitude();
                 else
-                    url = "http://data.beroads.com/IWay/TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json";
+                    url = "https://data.beroads.com/IWay/TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json";
 
                 System.out.println("*** URL:" + url);
                 try {

@@ -1,5 +1,7 @@
 package com.profete162.WebcamWallonnes.Utils;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -9,11 +11,12 @@ import java.io.IOException;
  * Created by 201601 on 15/06/13.
  */
 public class Utils {
+    private static final String TAG = "WazaBe";
 
     public static double getDistance(double sLat, double sLon, double eLat,
                                      double eLon) {
         double d2r = (Math.PI / 180);
-        //Log.i("DISTANCE: ", sLat + "/" + sLon + " * " + eLat + "/" + eLon);
+        Log.i("DISTANCE: ", sLat + "/" + sLon + " * " + eLat + "/" + eLon);
         try {
             double dlong = (eLon - sLon) * d2r;
             double dlat = (eLat - sLat) * d2r;
@@ -24,7 +27,7 @@ public class Utils {
             return 6367 * c * 1000;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "An exemption occurred when getting lat/log", e);
         }
         return 0;
     }

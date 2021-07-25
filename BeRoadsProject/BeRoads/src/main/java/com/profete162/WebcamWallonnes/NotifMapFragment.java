@@ -16,8 +16,11 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
@@ -37,7 +40,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class NotifMapFragment extends SupportMapFragment {
+public class NotifMapFragment extends SupportMapFragment implements OnMapReadyCallback {
 
     Location location;
     GoogleMap mMap;
@@ -50,28 +53,9 @@ public class NotifMapFragment extends SupportMapFragment {
         setHasOptionsMenu(true);
 
         // mMapFragment = MapFragment.newInstance();
-        mMap = this.getMap();
-        if (mMap != null) {
+        this.getMapAsync(this);
 
-            location = ((DrawerActivity) this.getActivity()).loc;
-
-            CamRequest camTask = new CamRequest();
-            camTask.execute("CVE");
-            mMap.setInfoWindowAdapter(new PopupTrafficAdapter(getParentFragment().getActivity().getLayoutInflater()));
-
-
-            preferences = PreferenceManager.getDefaultSharedPreferences(getParentFragment().getActivity());
-
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                    new LatLng(preferences.getFloat("lat", 50.5f),
-                            preferences.getFloat("lng", 4)), preferences
-                    .getFloat("zoom", ZOOM)));
-
-
-        }else
-            getParentFragment().getActivity().setProgressBarIndeterminateVisibility(false);
-
-
+        getParentFragment().getActivity().setProgressBarIndeterminateVisibility(false);
     }
 
     public void doStuff() {
@@ -128,6 +112,23 @@ public class NotifMapFragment extends SupportMapFragment {
 
     }
 
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        location = ((DrawerActivity) this.getActivity()).loc;
+
+        CamRequest camTask = new CamRequest();
+        camTask.execute("CVE");
+        mMap.setInfoWindowAdapter(new PopupTrafficAdapter(getParentFragment().getActivity().getLayoutInflater()));
+
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(getParentFragment().getActivity());
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                new LatLng(preferences.getFloat("lat", 50.5f),
+                        preferences.getFloat("lng", 4)), preferences
+                        .getFloat("zoom", ZOOM)));
+    }
+
     public class APITrafficRequest extends AsyncTask<String, Void, TrafficFragment.ApiResponse> {
 
         @Override
@@ -142,7 +143,7 @@ public class NotifMapFragment extends SupportMapFragment {
 
 
                 try {
-                    String url = "http://data.beroads.com/IWay/TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json&from="
+                    String url = "https://data.beroads.com/IWay/TrafficEvent/" + getString(R.string.lan) + "/all.json?format=json&from="
                             + location.getLatitude()
                             + ","
                             + location.getLongitude()
@@ -199,7 +200,7 @@ public class NotifMapFragment extends SupportMapFragment {
         protected RadarFragment.ApiResponse doInBackground(String... params) {
 
             if (location != null) {
-                String url = "http://data.beroads.com/IWay/Radar.json?format=json&from="
+                String url = "https://data.beroads.com/IWay/Radar.json?format=json&from="
                         + location.getLatitude()
                         + ","
                         + location.getLongitude() + "&max=30";

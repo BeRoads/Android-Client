@@ -2,9 +2,8 @@ package com.profete162.WebcamWallonnes.Utils;
 
 
 import android.location.Location;
-import android.support.v4.app.ListFragment;
+import androidx.fragment.app.ListFragment;
 
-import com.profete162.WebcamWallonnes.CamFragment;
 import com.profete162.WebcamWallonnes.RadarFragment;
 import com.profete162.WebcamWallonnes.TrafficFragment;
 

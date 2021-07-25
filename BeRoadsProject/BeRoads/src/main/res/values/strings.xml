@@ -4,6 +4,7 @@
     <string name="app_name">BeRoads</string>
     <string name="action_settings">Settings</string>
     <string name="lan">fr</string>
+    <string name="ok">OK</string>
     <string name="starred">Favorites</string>
     <string name="toStar">Ajouter aux favoris</string>
     <string name="toUnstar">Retirer des favoris</string>
@@ -76,6 +77,8 @@
   -->
     <string name="lat_lng_pattern">* ###.00000000;* -###.00000000</string>
     <string name="radius_pattern">* #.0000</string>
+
+    <string name="permission_location_rationale">Location permission is needed to show the map with Cameras, Traffic and Radar near you.</string>
 
 
 </resources>
